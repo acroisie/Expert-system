@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"bufio"
 	"os"
+	"strings"
 )
 
 func ParseFile(inputFile string) {
@@ -16,9 +17,35 @@ func ParseFile(inputFile string) {
 
     scanner := bufio.NewScanner(file)
     for scanner.Scan() {
-        fmt.Println(scanner.Text())
+        line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		switch {
+		case strings.HasPrefix(line, "="):
+			parseInitialFacts(line[1:])
+		case strings.HasPrefix(line, "?"):
+			parseQueries(line[1:])
+		default:
+			parseRule(line)
+		}
     }
+
+
     if err := scanner.Err(); err != nil {
         fmt.Println("Error: ", err)
     }
+}
+
+func parseInitialFacts(line string) {
+	fmt.Println("Initial facts: ", line)
+}
+
+func parseQueries(line string) {
+	fmt.Println("Queries: ", line)
+}
+
+func parseRule(line string) {
+	fmt.Println("Rule: ", line)
 }
