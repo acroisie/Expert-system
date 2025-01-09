@@ -8,7 +8,7 @@ import (
 	"expert-system/src/models"
 )
 
-func ParseFile(inputFile string) {
+func ParseFile(inputFile string, problem *models.Problem) {
     file, err := os.Open(inputFile)
     if err != nil {
         fmt.Println("Error: ", err)
@@ -25,7 +25,7 @@ func ParseFile(inputFile string) {
 
 		switch {
 		case strings.HasPrefix(line, "="):
-			parseInitialFacts(line[1:])
+			parseInitialFacts(line[1:], problem)
 		case strings.HasPrefix(line, "?"):
 			parseQueries(line[1:])
 		default:
@@ -38,7 +38,7 @@ func ParseFile(inputFile string) {
     }
 }
 
-func parseInitialFacts(line string) {
+func parseInitialFacts(line string, problem *models.Problem) {
 	buff := strings.Split(line, " ")
 	initialFacts := buff[0]
 	fmt.Println("Initial facts: ", initialFacts)
@@ -55,7 +55,7 @@ func parseInitialFacts(line string) {
 			Initial: true,
 			Reason: models.Reason{Msg: "Initial fact"},
 		}
-		fmt.Println(fact) // Append to facts and store it in a global variable
+		problem.Facts = append(problem.Facts, fact)
 	}
 }
 
