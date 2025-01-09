@@ -1,5 +1,10 @@
 package models
 
+import (
+	"fmt"
+	"errors"
+)
+
 type ExpressionGroup struct {
     Op LogicalOperator
 	LeftVariable *Variable
@@ -8,159 +13,138 @@ type ExpressionGroup struct {
 	RightExpressionGroup *ExpressionGroup
 }
 
+func (ep ExpressionGroup) solving(facts []Fact, display bool) (Value, error) {
+	if display {
+		fmt.Println("ExpressionGroup solving : ", ep)
+	}
 
+	if !ep.Op.isValid() {
+		return UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", ep.Op))
+	}
 
-// func (arg Arg) solving(previousValue Value, facts []Fact) (bool, error) {
-// 	fmt.Println("Arg solving with arg: %s and previousValue: %s", arg, previousValue)
-// 	fact, err := GetFactReferenceByLetter(facts, arg.Letter)
-// 	fmt.Println("Fact: %s", fact)
-// 	if err != nil {
-// 		return false, err
-// 	}
+	leftValue, err := ep.solvingSide(true, facts)
+	if err != nil {
+		return UNDETERMINED, err
+	}
+	rightValue, err := ep.solvingSide(false, facts)
+	if err != nil {
+		return UNDETERMINED, err
+	}
+	if display {
+		fmt.Println(fmt.Sprintf("ExpressionGroup solving leftValue %s : %s", ep.SideDisplay(true), leftValue))
+		fmt.Println(fmt.Sprintf("ExpressionGroup solving rightValue %s : %s", ep.SideDisplay(false), rightValue))
+	}
+	
+	result, err := ep.Op.solve(leftValue, rightValue, display)
+	if err != nil {
+		return UNDETERMINED, err
+	}
+	if display {
+		fmt.Println(fmt.Sprintf("ExpressionGroup solving result: %s = %s", ep, result))
+	}
+	return result, nil
+}
 
-// 	if previousLetter == 0 {
-// 		return c.value(*fact), nil
-// 	}
+func (ep ExpressionGroup) solvingSide(side bool, facts []Fact) (Value, error) {
+	if side {
+		if ep.LeftVariable != nil {
+			return ep.LeftVariable.GetValueByFacts(facts)
+		} else if ep.LeftExpressionGroup != nil {
+			return ep.LeftExpressionGroup.solving(facts, false)
+		} else {
+			return UNDETERMINED, errors.New("Left side is empty")
+		}
+	} else {
+		if ep.RightVariable != nil {
+			return ep.RightVariable.GetValueByFacts(facts)
+		} else if ep.RightExpressionGroup != nil {
+			return ep.RightExpressionGroup.solving(facts, false)
+		} else {
+			return UNDETERMINED, errors.New("Right side is empty")
+		}
+	}
+}
 
-// 	if !arg.Op.isValid() {
-// 		return false, errors.New(fmt.Sprintf("Unknown operator: %s", arg.Op.toString()))
-// 	}
-// 	result, err := arg.Op.solve(previousValue, arg.value(*fact))
+func (ep ExpressionGroup) findUnknow(res Value, know Value, side bool, facts []Fact, change int) (int, error) {
+	var newValue Value
+	if ep.Op == OR {
+		newValue = res.findUnknown_OR(know)
+	} else if ep.Op == AND {
+		newValue = res.findUnknown_AND(know)
+	} else {
+		newValue = res.findUnknown_XOR(know)
+	}
 
-// 	return result, nil
-// }
+	if side {
+		if ep.LeftVariable != nil {
+			err := SetFactValueByLetter(facts, ep.LeftVariable.Letter, newValue, false)
+			if err != nil {
+				return change, err
+			}
+			return change + 1, nil
+		} else {
+			res, err := ep.LeftExpressionGroup.resultDeduction(newValue, change, facts)
+			return res, err
+		}
+	} else {
+		if ep.RightVariable != nil {
+			err := SetFactValueByLetter(facts, ep.RightVariable.Letter, newValue, false)
+			if err != nil {
+				return change, err
+			}
+			return change + 1, nil
+		} else {
+			res, err := ep.RightExpressionGroup.resultDeduction(newValue, change, facts)
+			return res, err
+		}
+	}
+}
 
+func (ep ExpressionGroup) resultDeduction(result Value, change int, facts []Fact) (int, error) {
+	leftValue, err := ep.solvingSide(true, facts)
+	if err != nil {
+		return change, err
+	}
+	rightValue, err := ep.solvingSide(false, facts)
+	if err != nil {
+		return change, err
+	}
+	if result.real() {
+		if leftValue == INIT_FALSE && rightValue.real() {
+			change, err := ep.findUnknow(result, rightValue, true, facts, change)
+			if err != nil {
+				return change, err
+			}
+		} else if leftValue.real() && rightValue == INIT_FALSE {
+			change, err := ep.findUnknow(result, leftValue, false, facts, change)
+			if err != nil {
+				return change, err
+			}
+		} else if leftValue == INIT_FALSE && rightValue == INIT_FALSE {
+			return change, nil // TODO
+		}
+	}
+	return change, nil
+}
 
+// DISPLAY
 
-// // DISPLAY
+func (ep ExpressionGroup) String() string {
+	return fmt.Sprintf("%s %s %s", ep.SideDisplay(true), ep.Op, ep.SideDisplay(false))
+}
 
-// func (arg Arg) String() string {
-// 	return fmt.Sprintf("%s %c", arg.Op.getSymbol(), arg.getLetter())
-// }
-
-// func (c Arg) getLetter() string {
-// 	if (c.Not) {
-// 		return "!" + string(c.Letter)
-// 	} else {
-// 		return string(c.Letter)
-// 	}
-// }
-
-
-// func (c Rule) GetRule() string {
-//     var leftArgs, rightArgs string
-//     for _, arg := range c.LeftArgs {
-//         leftArgs += arg.Op.getSymbol() + " " + arg.getLetter() + " "
-//     }
-//     for _, arg := range c.RightArgs {
-//         rightArgs += arg.Op.getSymbol() + " " + arg.getLetter() + " "
-//     }
-//     return leftArgs + c.Op.getSymbol() + rightArgs
-// }
-
-// func (c Rule) InitialSolving(facts []Fact) {
-    
-// }
-
-// func DisplayRules(rules []Rule) {
-//     for i, rule := range rules {
-//         fmt.Printf("%d: %s\n", i+1, rule.GetRule())
-//     }
-// }
-
-// func RulesConditionalOperatorFormatter(rules []Rule) []Rule {
-//     var newRules []Rule
-//     for _, rule := range rules {
-//         if rule.Op == IFF {
-//             newRules = append(newRules, Rule{
-//                 LeftArgs: rule.LeftArgs,
-//                 RightArgs: rule.RightArgs,
-//                 Op: IMPLIES,
-//             })
-//             newRules = append(newRules, Rule{
-//                 LeftArgs: rule.RightArgs,
-//                 RightArgs: rule.LeftArgs,
-//                 Op: IMPLIES,
-//             })
-//         } else {
-//             newRules = append(newRules, rule)
-//         }
-//     }
-//     return newRules
-// }
-
-// func GetRulesMock() []Rule {
-//     rules := []Rule{
-//         // C => E
-//         {LeftArgs: []Arg{{Op: NOTHING, Letter: 'C'}}, RightArgs: []Arg{{Op: NOTHING, Letter: 'E'}}, Op: IMPLIES},
-
-//         // A + B + C => D
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'A'}, 
-//             {Op: AND, Letter: 'B'}, 
-//             {Op: AND, Letter: 'C'},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'D'}}, Op: IMPLIES},
-
-//         // A | B => C
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'A'}, 
-//             {Op: OR, Letter: 'B'},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'C'}}, Op: IMPLIES},
-
-//         // A + !B => F
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'A'}, 
-//             {Op: AND, Letter: 'B', Not: true},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'F'}}, Op: IMPLIES},
-
-//         // C | !G => H
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'C'}, 
-//             {Op: OR, Letter: 'G', Not: true},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'H'}}, Op: IMPLIES},
-
-//         // V ^ W => X
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'V'}, 
-//             {Op: XOR, Letter: 'W'},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'X'}}, Op: IMPLIES},
-
-//         // A + B => Y + Z
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'A'}, 
-//             {Op: AND, Letter: 'B'},
-//         }, RightArgs: []Arg{
-//             {Op: NOTHING, Letter: 'Y'}, 
-//             {Op: AND, Letter: 'Z'},
-//         }, Op: IMPLIES},
-
-//         // C | D => X | V
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'C'}, 
-//             {Op: OR, Letter: 'D'},
-//         }, RightArgs: []Arg{
-//             {Op: NOTHING, Letter: 'X'}, 
-//             {Op: OR, Letter: 'V'},
-//         }, Op: IMPLIES},
-
-//         // E + F => !V
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'E'}, 
-//             {Op: AND, Letter: 'F'},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'V', Not: true}}, Op: IMPLIES},
-
-//         // A + B <=> C
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'A'}, 
-//             {Op: AND, Letter: 'B'},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'C'}}, Op: IFF},
-
-//         // A + B <=> !C
-//         {LeftArgs: []Arg{
-//             {Op: NOTHING, Letter: 'A'}, 
-//             {Op: AND, Letter: 'B'},
-//         }, RightArgs: []Arg{{Op: NOTHING, Letter: 'C', Not: true}}, Op: IFF},
-//     }
-
-//     return rules
-// }
+func (ep ExpressionGroup) SideDisplay(side bool) string {
+	if side {
+		if ep.LeftVariable != nil {
+			return ep.LeftVariable.String()
+		} else {
+			return ep.LeftExpressionGroup.String()
+		}
+	} else {
+		if ep.RightVariable != nil {
+			return ep.RightVariable.String()
+		} else {
+			return ep.RightExpressionGroup.String()
+		}
+	}
+}
