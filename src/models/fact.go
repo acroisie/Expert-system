@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+    "errors"
 )
 
 type Reason struct {
@@ -10,10 +11,23 @@ type Reason struct {
 
 type Fact struct {
     Letter rune
-    Value bool
+    Value Value
     Initial bool
     Reason Reason
 }
+
+func GetFactReferenceByLetter(facts []Fact, letter rune) (*Fact, error) {
+	for i := range facts {
+		if facts[i].Letter == letter {
+			return &facts[i], nil
+		}
+	}
+	return nil, errors.New(fmt.Sprintf("Fact with letter %c not found", letter))
+}
+
+
+
+// DISPLAY
 
 func (f Fact) getFact() string {
     return fmt.Sprintf("%c = %t", f.Letter, f.Value)
@@ -27,9 +41,9 @@ func DisplayFacts(facts []Fact) {
 
 func GetFactsMock() []Fact {
 	facts := []Fact{
-		{Letter: 'A', Value: true, Initial: true, Reason: Reason{Msg: "Initial fact"}},
-		{Letter: 'B', Value: true, Initial: true, Reason: Reason{Msg: "Initial fact"}},
-		{Letter: 'G', Value: true, Initial: true, Reason: Reason{Msg: "Initial fact"}},
+		{Letter: 'A', Value: TRUE, Initial: true, Reason: Reason{Msg: "Initial fact"}},
+		{Letter: 'B', Value: TRUE, Initial: true, Reason: Reason{Msg: "Initial fact"}},
+		{Letter: 'G', Value: TRUE, Initial: true, Reason: Reason{Msg: "Initial fact"}},
 	}
 	return facts
 }

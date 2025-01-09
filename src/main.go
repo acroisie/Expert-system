@@ -8,10 +8,17 @@ import (
 )
 
 func main() {
+	fmt.Println("--- Expert System ---\n")
+	fmt.Println("--- RULES ---")
 	rules := models.GetRulesMock()
     models.DisplayRules(rules)
+	fmt.Println("\n--- FACTS ---")
     facts := models.GetFactsMock()
     models.DisplayFacts(facts)
+	fmt.Println("\n--- RULES AFTER CONDITIONAL OPERATOR FORMATTER ---")
+	rules = models.RulesConditionalOperatorFormatter(rules)
+	models.DisplayRules(rules)
+	
 	return 
 	if (len(os.Args) != 2) {
 		fmt.Println("Usage: go run src/main.go <filename>")

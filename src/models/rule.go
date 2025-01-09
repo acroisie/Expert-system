@@ -21,10 +21,35 @@ func (c Rule) GetRule() string {
     return leftArgs + c.Op.getSymbol() + rightArgs
 }
 
+func (c Rule) InitialSolving(facts []Fact) {
+    
+}
+
 func DisplayRules(rules []Rule) {
     for i, rule := range rules {
         fmt.Printf("%d: %s\n", i+1, rule.GetRule())
     }
+}
+
+func RulesConditionalOperatorFormatter(rules []Rule) []Rule {
+    var newRules []Rule
+    for _, rule := range rules {
+        if rule.Op == IFF {
+            newRules = append(newRules, Rule{
+                LeftArgs: rule.LeftArgs,
+                RightArgs: rule.RightArgs,
+                Op: IMPLIES,
+            })
+            newRules = append(newRules, Rule{
+                LeftArgs: rule.RightArgs,
+                RightArgs: rule.LeftArgs,
+                Op: IMPLIES,
+            })
+        } else {
+            newRules = append(newRules, rule)
+        }
+    }
+    return newRules
 }
 
 func GetRulesMock() []Rule {
