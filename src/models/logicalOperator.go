@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"fmt"
 )
 
 type LogicalOperator int
@@ -26,7 +27,7 @@ func (op LogicalOperator) solve(a Value, b Value) (Value, error) {
         case XOR:
             return a.XOR(b), nil
         default:
-            return false, errors.New(fmt.Sprintf("Unknown operator: %s", op.toString()))
+            return UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", op.toString()))
     }
 }
 
@@ -36,19 +37,4 @@ func (op LogicalOperator) toString() string {
 
 func (op LogicalOperator) getSymbol() string {
     return [...]string{"", "+", "|", "^"}[op]
-}
-
-type ConditionalOperator int
-
-const (
-    IMPLIES ConditionalOperator = iota
-    IFF
-)
-
-func (op ConditionalOperator) toString() string {
-    return [...]string{"IMPLIES", "IFF"}[op]
-}
-
-func (op ConditionalOperator) getSymbol() string {
-    return [...]string{"=>", "<=>"}[op]
 }

@@ -1,3 +1,5 @@
+package models
+
 type Value int
 
 const (
@@ -19,22 +21,22 @@ func (firstValue Value) AND(secondValue Value) Value {
 	b := secondValue.normalize()
 	switch a {
 		case FALSE:
-			return FALSE, nil
+			return FALSE
 		case TRUE:
 			if b == TRUE {
-				return TRUE, nil
+				return TRUE
 			} else if b == FALSE {
-				return FALSE, nil
+				return FALSE
 			} else {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			}
 		case UNDETERMINED:
 			if b == TRUE {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			} else if b == FALSE {
-				return FALSE, nil
+				return FALSE
 			} else {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			}
 		default:
 			return UNDETERMINED
@@ -47,21 +49,21 @@ func (firstValue Value) OR(secondValue Value) Value {
 	switch a {
 		case FALSE:
 			if b == TRUE {
-				return TRUE, nil
+				return TRUE
 			} else if b == FALSE {
-				return FALSE, nil
+				return FALSE
 			} else {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			}
 		case TRUE:
-			return TRUE, nil
+			return TRUE
 		case UNDETERMINED:
 			if b == TRUE {
-				return TRUE, nil
+				return TRUE
 			} else if b == FALSE {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			} else {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			}
 		default:
 			return UNDETERMINED
@@ -74,25 +76,52 @@ func (firstValue Value) XOR(secondValue Value) Value {
 	switch a {
 		case FALSE:
 			if b == TRUE {
-				return TRUE, nil
+				return TRUE
 			} else if b == FALSE {
-				return FALSE, nil
+				return FALSE
 			} else {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			}
 		case TRUE:
 			if b == TRUE {
-				return FALSE, nil
+				return FALSE
 			} else if b == FALSE {
-				return TRUE, nil
+				return TRUE
 			} else {
-				return UNDETERMINED, nil
+				return UNDETERMINED
 			}
 		case UNDETERMINED:
-			return UNDETERMINED, nil
+			return UNDETERMINED
 		default:
 			return UNDETERMINED
 	}
 }
 
+func (v Value) NOT() Value {
+	value := v.normalize()
+	switch value {
+		case FALSE:
+			return TRUE
+		case TRUE:
+			return FALSE
+		case UNDETERMINED:
+			return UNDETERMINED
+		default:
+			return UNDETERMINED
+	}
+}
 
+func (v Value) String() string {
+	switch v {
+		case FALSE:
+			return "FALSE"
+		case TRUE:
+			return "TRUE"
+		case UNDETERMINED:
+			return "UNDETERMINED"
+		case INIT_FALSE:
+			return "INIT_FALSE"
+		default:
+			return "UNKNOWN"
+	}
+}

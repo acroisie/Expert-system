@@ -29,6 +29,10 @@ func GetFactReferenceByLetter(facts []Fact, letter rune) (*Fact, error) {
 
 // DISPLAY
 
+func (f Fact) String() string {
+    return f.getFact()
+}
+
 func (f Fact) getFact() string {
     return fmt.Sprintf("%c = %t", f.Letter, f.Value)
 }
