@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"os"
 	"strings"
+	"expert-system/src/models"
 )
 
 func ParseFile(inputFile string) {
@@ -32,20 +33,36 @@ func ParseFile(inputFile string) {
 		}
     }
 
-
     if err := scanner.Err(); err != nil {
         fmt.Println("Error: ", err)
     }
 }
 
 func parseInitialFacts(line string) {
-	fmt.Println("Initial facts: ", line)
+	buff := strings.Split(line, " ")
+	initialFacts := buff[0]
+	fmt.Println("Initial facts: ", initialFacts)
+
+	for _, letter := range initialFacts {
+		if letter < 'A' || letter > 'Z' {
+			fmt.Println("Error: Invalid initial fact")
+			os.Exit(1)
+		}
+
+		fact := models.Fact{
+			Letter: letter,
+			Value: models.TRUE,
+			Initial: true,
+			Reason: models.Reason{Msg: "Initial fact"},
+		}
+		fmt.Println(fact) // Append to facts and store it in a global variable
+	}
 }
 
 func parseQueries(line string) {
-	fmt.Println("Queries: ", line)
+	// fmt.Println("Queries: ", line)
 }
 
 func parseRule(line string) {
-	fmt.Println("Rule: ", line)
+	// fmt.Println("Rule: ", line)
 }
