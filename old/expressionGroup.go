@@ -1,4 +1,4 @@
-package models
+package rules
 
 import (
 	"fmt"
@@ -19,16 +19,16 @@ func (ep ExpressionGroup) solving(facts []Fact, display bool) (Value, error) {
 	}
 
 	if !ep.Op.isValid() {
-		return UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", ep.Op))
+		return v.UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", ep.Op))
 	}
 
 	leftValue, err := ep.solvingSide(true, facts)
 	if err != nil {
-		return UNDETERMINED, err
+		return v.UNDETERMINED, err
 	}
 	rightValue, err := ep.solvingSide(false, facts)
 	if err != nil {
-		return UNDETERMINED, err
+		return v.UNDETERMINED, err
 	}
 	if display {
 		fmt.Println(fmt.Sprintf("ExpressionGroup solving leftValue %s : %s", ep.SideDisplay(true), leftValue))
@@ -37,7 +37,7 @@ func (ep ExpressionGroup) solving(facts []Fact, display bool) (Value, error) {
 	
 	result, err := ep.Op.solve(leftValue, rightValue, display)
 	if err != nil {
-		return UNDETERMINED, err
+		return v.UNDETERMINED, err
 	}
 	if display {
 		fmt.Println(fmt.Sprintf("ExpressionGroup solving result: %s = %s", ep, result))
@@ -49,10 +49,11 @@ func (ep ExpressionGroup) solvingSide(side bool, facts []Fact) (Value, error) {
 	if side {
 		if ep.LeftVariable != nil {
 			return ep.LeftVariable.GetValueByFacts(facts)
+			return fac
 		} else if ep.LeftExpressionGroup != nil {
 			return ep.LeftExpressionGroup.solving(facts, false)
 		} else {
-			return UNDETERMINED, errors.New("Left side is empty")
+			return v.UNDETERMINED, errors.New("Left side is empty")
 		}
 	} else {
 		if ep.RightVariable != nil {
@@ -60,9 +61,46 @@ func (ep ExpressionGroup) solvingSide(side bool, facts []Fact) (Value, error) {
 		} else if ep.RightExpressionGroup != nil {
 			return ep.RightExpressionGroup.solving(facts, false)
 		} else {
-			return UNDETERMINED, errors.New("Right side is empty")
+			return v.UNDETERMINED, errors.New("Right side is empty")
 		}
 	}
+}
+
+func (ep ExpressionGroup) findTwoUnknow(res Value, facts []Fact, change int) (int, error) {
+	var newLeftValue Value
+	var newRightValue Value
+	if ep.Op == OR {
+		newLeftValue, newRightValue = res.findTwoUnknown_OR()
+	} else if ep.Op == AND {
+		newLeftValue, newRightValue = res.findTwoUnknown_AND()
+	} else {
+		newLeftValue, newRightValue = res.findTwoUnknown_XOR()
+	}
+
+	if newLeftValue != v.UNKNOW {
+		if ep.LeftVariable != nil{
+			err := SetFactValueByLetter(facts, *ep.LeftVariable, newLeftValue, false)
+			if err != nil {
+				return change, err
+			}
+			return change + 1, nil
+		} else {
+			res, err := ep.LeftExpressionGroup.resultDeduction(newLeftValue, change, facts)
+			return res, err
+		}
+	} else if newRightValue != v.UNKNOW {
+		if ep.RightVariable != nil {
+			err := SetFactValueByLetter(facts, *ep.RightVariable, newRightValue, false)
+			if err != nil {
+				return change, err
+			}
+			return change + 1, nil
+		} else {
+			res, err := ep.RightExpressionGroup.resultDeduction(newRightValue, change, facts)
+			return res, err
+		}
+	}
+	return change, nil
 }
 
 func (ep ExpressionGroup) findUnknow(res Value, know Value, side bool, facts []Fact, change int) (int, error) {
@@ -77,7 +115,7 @@ func (ep ExpressionGroup) findUnknow(res Value, know Value, side bool, facts []F
 
 	if side {
 		if ep.LeftVariable != nil {
-			err := SetFactValueByLetter(facts, ep.LeftVariable.Letter, newValue, false)
+			err := SetFactValueByLetter(facts, *ep.LeftVariable, newValue, false)
 			if err != nil {
 				return change, err
 			}
@@ -88,7 +126,7 @@ func (ep ExpressionGroup) findUnknow(res Value, know Value, side bool, facts []F
 		}
 	} else {
 		if ep.RightVariable != nil {
-			err := SetFactValueByLetter(facts, ep.RightVariable.Letter, newValue, false)
+			err := SetFactValueByLetter(facts, *ep.RightVariable, newValue, false)
 			if err != nil {
 				return change, err
 			}
@@ -109,19 +147,22 @@ func (ep ExpressionGroup) resultDeduction(result Value, change int, facts []Fact
 	if err != nil {
 		return change, err
 	}
-	if result.real() {
-		if leftValue == INIT_FALSE && rightValue.real() {
+	if result.Real() {
+		if leftValue == v.UNKNOW && rightValue.Real() {
 			change, err := ep.findUnknow(result, rightValue, true, facts, change)
 			if err != nil {
 				return change, err
 			}
-		} else if leftValue.real() && rightValue == INIT_FALSE {
+		} else if leftValue.Real() && rightValue == v.UNKNOW {
 			change, err := ep.findUnknow(result, leftValue, false, facts, change)
 			if err != nil {
 				return change, err
 			}
-		} else if leftValue == INIT_FALSE && rightValue == INIT_FALSE {
-			return change, nil // TODO
+		} else if leftValue == v.UNKNOW && rightValue == v.UNKNOW {
+			change, err := ep.findTwoUnknow(result, facts, change)
+			if err != nil {
+				return change, err
+			}
 		}
 	}
 	return change, nil
@@ -133,7 +174,7 @@ func (ep ExpressionGroup) String() string {
 	return fmt.Sprintf("%s %s %s", ep.SideDisplay(true), ep.Op, ep.SideDisplay(false))
 }
 
-func (ep ExpressionGroup) SideDisplay(side bool) string {
+func (ep ExpressionGroup) SideDisplay(side ) string {
 	if side {
 		if ep.LeftVariable != nil {
 			return ep.LeftVariable.String()

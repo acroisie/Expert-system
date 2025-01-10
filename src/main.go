@@ -4,21 +4,18 @@ import (
 	"fmt"
 	"os"
 	"io/ioutil"
-	"expert/models"
+	"expert/factManager"
+	"expert/rules"
 )
 
 func main() {
 	fmt.Println("--- Expert System ---\n")
-	rules := models.GetRulesMock()
-	rules = models.RulesConditionalOperatorFormatter(rules)
-	// models.DisplayRules(rules)
-	facts := models.GetFactsMock()
-	models.DisplayFacts(facts)
-
-	subRules := rules
-	models.DisplayRules(subRules)
-	models.SolveRules(subRules, facts)
-	models.DisplayFacts(facts)
+	ruleList := rules.GetRulesMock()
+	ruleList = rules.RulesConditionalOperatorFormatter(ruleList)
+	factManager.FactList = factManager.GetFactsMock()
+	factManager.Display()
+	subRuleList := ruleList
+	algo(subRuleList)
 
 	return 
 	if (len(os.Args) != 2) {
