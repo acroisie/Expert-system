@@ -66,7 +66,7 @@ func (ep ExpressionGroup) solvingSide(side bool, facts []Fact) (Value, error) {
 	}
 }
 
-func (ep ExpressionGroup) findTwoUnknow(res Value, facts []Fact, change int) (int, error) {
+func (ep ExpressionGroup) findTwoUnknown(res Value, facts []Fact, change int) (int, error) {
 	var newLeftValue Value
 	var newRightValue Value
 	if ep.Op == OR {
@@ -103,7 +103,7 @@ func (ep ExpressionGroup) findTwoUnknow(res Value, facts []Fact, change int) (in
 	return change, nil
 }
 
-func (ep ExpressionGroup) findUnknow(res Value, know Value, side bool, facts []Fact, change int) (int, error) {
+func (ep ExpressionGroup) findUnknown(res Value, know Value, side bool, facts []Fact, change int) (int, error) {
 	var newValue Value
 	if ep.Op == OR {
 		newValue = res.findUnknown_OR(know)
@@ -149,17 +149,17 @@ func (ep ExpressionGroup) resultDeduction(result Value, change int, facts []Fact
 	}
 	if result.Real() {
 		if leftValue == v.UNKNOWN && rightValue.Real() {
-			change, err := ep.findUnknow(result, rightValue, true, facts, change)
+			change, err := ep.findUnknown(result, rightValue, true, facts, change)
 			if err != nil {
 				return change, err
 			}
 		} else if leftValue.Real() && rightValue == v.UNKNOWN {
-			change, err := ep.findUnknow(result, leftValue, false, facts, change)
+			change, err := ep.findUnknown(result, leftValue, false, facts, change)
 			if err != nil {
 				return change, err
 			}
 		} else if leftValue == v.UNKNOWN && rightValue == v.UNKNOWN {
-			change, err := ep.findTwoUnknow(result, facts, change)
+			change, err := ep.findTwoUnknown(result, facts, change)
 			if err != nil {
 				return change, err
 			}

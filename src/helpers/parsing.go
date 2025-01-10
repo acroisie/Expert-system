@@ -29,7 +29,7 @@ func ParseFile(inputFile string, problem *models.Problem) {
 		case strings.HasPrefix(line, "?"):
 			parseQueries(line[1:], problem)
 		default:
-			parseRule(line)
+			parseRule(line, problem)
 		}
     }
 
@@ -76,6 +76,15 @@ func parseQueries(line string, problem *models.Problem) {
 	}
 }
 
-func parseRule(line string) {
-	// fmt.Println("Rule: ", line)
+func parseRule(line string, problem *models.Problem) {
+	line = strings.ReplaceAll(line, " ", "")
+	buff := strings.Split(line, "#")
+	rule := buff[0]
+	fmt.Println("Rule: ", rule)
+
+	for _, letter := range rule {
+		if letter >= 'A' && letter <= 'Z' {
+			fmt.Println("Char: ", letter)
+		}
+	}
 }

@@ -73,9 +73,9 @@ func (ep ExpressionGroup) deduction(result v.Value) error {
 		}
 
 		if leftValue == v.UNKNOWN && rightValue.Real() {
-			return ep.findOneUnknow(result, rightValue, LEFT)
+			return ep.findOneUnknown(result, rightValue, LEFT)
 		} else if leftValue.Real() && rightValue == v.UNKNOWN {
-			return ep.findOneUnknow(result, leftValue, RIGHT)
+			return ep.findOneUnknown(result, leftValue, RIGHT)
 		} else if leftValue == v.UNKNOWN && rightValue == v.UNKNOWN {
 			return ep.findTwoUnknow(result)
 		}
@@ -94,7 +94,7 @@ func sideDeduction(variable *Variable, expressionGroup *ExpressionGroup, newValu
 	}
 }
 
-func (ep ExpressionGroup) findOneUnknow(res v.Value, know v.Value, side Side) error {
+func (ep ExpressionGroup) findOneUnknown(res v.Value, know v.Value, side Side) error {
 	var newValue v.Value
 	if ep.Op == OR {
 		newValue = res.FindUnknown_OR(know)
