@@ -17,4 +17,5 @@ func main() {
     helpers.ParseFile(os.Args[1], &problem)
 
 	fmt.Println(problem.Facts)
+    fmt.Println(problem.Queries)
 }

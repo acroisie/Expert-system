@@ -27,7 +27,7 @@ func ParseFile(inputFile string, problem *models.Problem) {
 		case strings.HasPrefix(line, "="):
 			parseInitialFacts(line[1:], problem)
 		case strings.HasPrefix(line, "?"):
-			parseQueries(line[1:])
+			parseQueries(line[1:], problem)
 		default:
 			parseRule(line)
 		}
@@ -59,7 +59,7 @@ func parseInitialFacts(line string, problem *models.Problem) {
 	}
 }
 
-func parseQueries(line string) {
+func parseQueries(line string, problem *models.Problem) {
 	buff := strings.Split(line, " ")
 	queries := buff[0]
 	
@@ -69,8 +69,11 @@ func parseQueries(line string) {
 			os.Exit(1)
 		}
 
-		
-	// fmt.Println("Queries: ", queries)
+		query := models.Query {
+			Letter: letter,
+		}
+		problem.Queries = append(problem.Queries, query)
+	}
 }
 
 func parseRule(line string) {
