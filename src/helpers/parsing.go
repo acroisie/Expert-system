@@ -41,7 +41,7 @@ func ParseFile(inputFile string, problem *models.Problem) {
 func parseInitialFacts(line string, problem *models.Problem) {
 	buff := strings.Split(line, " ")
 	initialFacts := buff[0]
-	fmt.Println("Initial facts: ", initialFacts)
+	// fmt.Println("Initial facts: ", initialFacts)
 
 	for _, letter := range initialFacts {
 		if letter < 'A' || letter > 'Z' {
@@ -60,7 +60,17 @@ func parseInitialFacts(line string, problem *models.Problem) {
 }
 
 func parseQueries(line string) {
-	// fmt.Println("Queries: ", line)
+	buff := strings.Split(line, " ")
+	queries := buff[0]
+	
+	for _, letter := range queries {
+		if letter < 'A' || letter > 'Z' {
+			fmt.Println("Error: Invalid query")
+			os.Exit(1)
+		}
+
+		
+	// fmt.Println("Queries: ", queries)
 }
 
 func parseRule(line string) {
