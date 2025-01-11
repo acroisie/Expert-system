@@ -1,9 +1,9 @@
 package factManager
 
 import (
+	"errors"
+	"expert-system/v"
 	"fmt"
-    "errors"
-    "expert/v"
 )
 
 const (

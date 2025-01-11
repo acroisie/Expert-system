@@ -1,7 +1,7 @@
 package factManager
 
 import (
-	"expert/v"
+	"expert-system/v"
 )
 
 func GetFactsMock() []Fact {

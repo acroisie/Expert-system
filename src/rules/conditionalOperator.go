@@ -2,7 +2,7 @@ package rules
 
 import (
 	"errors"
-	"expert/v"
+	"expert-system/v"
 	"fmt"
 )
 

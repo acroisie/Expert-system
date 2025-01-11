@@ -2,8 +2,8 @@ package rules
 
 import (
 	"errors"
-	"expert/factManager"
-	"expert/v"
+	"expert-system/factManager"
+	"expert-system/v"
 	"fmt"
 )
 

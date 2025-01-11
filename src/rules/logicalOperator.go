@@ -2,8 +2,8 @@ package rules
 
 import (
 	"errors"
+	"expert-system/v"
 	"fmt"
-    "expert/v"
 )
 
 var LogicalOperatorDisplayLogs bool = false
