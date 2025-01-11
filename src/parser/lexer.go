@@ -10,22 +10,22 @@ import (
 type TokenType int
 
 const (
-	TKN_EOF TokenType = iota
-	TKN_VAR
-	TKN_NOT
-	TKN_AND
-	TKN_OR
-	TKN_XOR
-	TKN_LPAREN
-	TKN_RPAREN
-	TKN_IMPLIES
-	TKN_IFF
-	TKN_UNKNOWN
+    TKN_EOF TokenType = iota
+    TKN_VAR        // A..Z
+    TKN_NOT        // '!'
+    TKN_AND        // '+'
+    TKN_OR         // '|'
+    TKN_XOR        // '^'
+    TKN_LPAREN     // '('
+    TKN_RPAREN     // ')'
+    TKN_IMPLIES    // '=>'
+    TKN_IFF        // '<=>'
+    TKN_UNKNOWN
 )
 
 type Token struct {
 	Type  TokenType
-	value string
+	Value string
 }
 
 type Lexer struct {
@@ -63,5 +63,12 @@ func (l *Lexer) NextToken() Token {
 		l.nextChar()
 	}
 
-	// return l.nextToken()
+	char := l.nextChar()
+
+	switch char {
+	case 0:
+		return Token{Type: TKN_EOF, Value: ""}
+	case '+':
+		return Token{Type: TKN_AND, Value: '+'}
+
 }
