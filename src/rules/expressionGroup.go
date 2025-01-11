@@ -1,10 +1,10 @@
 package rules
 
 import (
-	"fmt"
 	"errors"
 	"expert/factManager"
 	"expert/v"
+	"fmt"
 )
 
 var ExpressionGroupDisplayLogs bool = false
@@ -72,11 +72,11 @@ func (ep ExpressionGroup) deduction(result v.Value) error {
 			return err
 		}
 
-		if leftValue == v.UNKNOW && rightValue.Real() {
+		if leftValue == v.UNKNOWN && rightValue.Real() {
 			return ep.findOneUnknow(result, rightValue, LEFT)
-		} else if leftValue.Real() && rightValue == v.UNKNOW {
+		} else if leftValue.Real() && rightValue == v.UNKNOWN {
 			return ep.findOneUnknow(result, leftValue, RIGHT)
-		} else if leftValue == v.UNKNOW && rightValue == v.UNKNOW {
+		} else if leftValue == v.UNKNOWN && rightValue == v.UNKNOWN {
 			return ep.findTwoUnknow(result)
 		}
 	}
@@ -122,9 +122,9 @@ func (ep ExpressionGroup) findTwoUnknow(res v.Value) error {
 		newLeftValue, newRightValue = res.FindTwoUnknown_XOR()
 	}
 
-	if newLeftValue != v.UNKNOW {
+	if newLeftValue != v.UNKNOWN {
 		return sideDeduction(ep.LeftVariable, ep.LeftExpressionGroup, newLeftValue)
-	} else if newRightValue != v.UNKNOW {
+	} else if newRightValue != v.UNKNOWN {
 		return sideDeduction(ep.RightVariable, ep.RightExpressionGroup, newRightValue)
 	}
 	return nil

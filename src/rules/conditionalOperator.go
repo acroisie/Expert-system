@@ -1,9 +1,9 @@
 package rules
 
 import (
-    "fmt"
-    "errors"
-    "expert/v"
+	"errors"
+	"expert/v"
+	"fmt"
 )
 
 var ConditionalOperatorDisplayLogs bool = false
@@ -26,7 +26,7 @@ func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, err
                 return v.FALSE, v.TRUE, errors.New("CONTRADICTION : v.FALSE => v.TRUE")
             } else if b == v.FALSE {
                 return v.FALSE, v.FALSE, nil
-            } else if b == v.UNKNOW {
+            } else if b == v.UNKNOWN {
                 return v.FALSE, v.FALSE, nil
             } else {
                 return v.FALSE, v.FALSE, nil
@@ -36,12 +36,12 @@ func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, err
                 return v.TRUE, v.TRUE, nil
             } else if b == v.FALSE {
                 return v.TRUE, v.FALSE, errors.New("CONTRADICTION : v.TRUE => v.FALSE")
-            } else if b == v.UNKNOW {
+            } else if b == v.UNKNOWN {
                 return v.TRUE, v.TRUE, nil
             } else {
                 return v.TRUE, v.TRUE, nil
             }
-        case v.UNKNOW:
+        case v.UNKNOWN:
             return a, b, nil
         case v.UNDETERMINED:
             return v.UNDETERMINED, b, nil

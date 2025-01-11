@@ -1,8 +1,8 @@
 package rules
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 type ExpressionGroup struct {
@@ -77,7 +77,7 @@ func (ep ExpressionGroup) findTwoUnknow(res Value, facts []Fact, change int) (in
 		newLeftValue, newRightValue = res.findTwoUnknown_XOR()
 	}
 
-	if newLeftValue != v.UNKNOW {
+	if newLeftValue != v.UNKNOWN {
 		if ep.LeftVariable != nil{
 			err := SetFactValueByLetter(facts, *ep.LeftVariable, newLeftValue, false)
 			if err != nil {
@@ -88,7 +88,7 @@ func (ep ExpressionGroup) findTwoUnknow(res Value, facts []Fact, change int) (in
 			res, err := ep.LeftExpressionGroup.resultDeduction(newLeftValue, change, facts)
 			return res, err
 		}
-	} else if newRightValue != v.UNKNOW {
+	} else if newRightValue != v.UNKNOWN {
 		if ep.RightVariable != nil {
 			err := SetFactValueByLetter(facts, *ep.RightVariable, newRightValue, false)
 			if err != nil {
@@ -148,17 +148,17 @@ func (ep ExpressionGroup) resultDeduction(result Value, change int, facts []Fact
 		return change, err
 	}
 	if result.Real() {
-		if leftValue == v.UNKNOW && rightValue.Real() {
+		if leftValue == v.UNKNOWN && rightValue.Real() {
 			change, err := ep.findUnknow(result, rightValue, true, facts, change)
 			if err != nil {
 				return change, err
 			}
-		} else if leftValue.Real() && rightValue == v.UNKNOW {
+		} else if leftValue.Real() && rightValue == v.UNKNOWN {
 			change, err := ep.findUnknow(result, leftValue, false, facts, change)
 			if err != nil {
 				return change, err
 			}
-		} else if leftValue == v.UNKNOW && rightValue == v.UNKNOW {
+		} else if leftValue == v.UNKNOWN && rightValue == v.UNKNOWN {
 			change, err := ep.findTwoUnknow(result, facts, change)
 			if err != nil {
 				return change, err

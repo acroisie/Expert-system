@@ -1,10 +1,10 @@
 package rules
 
 import (
-	"fmt"
 	"errors"
-    "expert/v"
 	"expert/factManager"
+	"expert/v"
+	"fmt"
 )
 
 var RuleDisplayLogs bool = false
@@ -52,7 +52,7 @@ func (rule Rule) Solving() (v.Value, v.Value, error) {
 
 func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) error {
 	LogRule(fmt.Sprintf("%s deduction, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
-	if leftValue.Real() && rightValue == v.UNKNOW {
+	if leftValue.Real() && rightValue == v.UNKNOWN {
 		if rule.RightVariable != nil {
             if rule.RightVariable.Not {
                 leftValue = leftValue.NOT()
@@ -61,7 +61,7 @@ func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) error {
 		} else {
 			return rule.RightExpressionGroup.deduction(leftValue)
 		}
-	} else if leftValue == v.UNKNOW && rightValue.Real() {
+	} else if leftValue == v.UNKNOWN && rightValue.Real() {
 		if rule.LeftVariable != nil {
             if rule.LeftVariable.Not {
                 rightValue = rightValue.NOT()

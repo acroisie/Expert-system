@@ -1,8 +1,8 @@
 package rules
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 type Rule struct {
@@ -79,14 +79,14 @@ func SolveRules(rules []Rule, facts []Fact) {
 }
 
 func (rule Rule) ExploitResults(leftValue Value, rightValue Value, facts []Fact, display bool) (int, error) {
-	if leftValue.Real() && rightValue == v.UNKNOW {
+	if leftValue.Real() && rightValue == v.UNKNOWN {
 		if rule.RightVariable != nil {
 			err := SetFactValueByLetter(facts, *rule.RightVariable, leftValue, true)
 			return 1, err
 		} else {
 			return rule.RightExpressionGroup.resultDeduction(leftValue, 0, facts)
 		}
-	} else if leftValue == v.UNKNOW && rightValue.Real() {
+	} else if leftValue == v.UNKNOWN && rightValue.Real() {
 		if rule.LeftVariable != nil {
 			err := SetFactValueByLetter(facts, *rule.LeftVariable, rightValue, true)
 			return 1, err

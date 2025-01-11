@@ -3,14 +3,14 @@ package v
 type Value int
 
 const (
-    UNKNOW Value = iota
+    UNKNOWN Value = iota
     FALSE
     TRUE
     UNDETERMINED
 )
 
 func (v Value) normalize() Value {
-	if v == UNKNOW {
+	if v == UNKNOWN {
 		return FALSE
 	}
 	return v
@@ -29,18 +29,18 @@ func (firstValue Value) AND(secondValue Value) Value {
 				return TRUE
 			} else if b == FALSE {
 				return FALSE
-			} else if b == UNKNOW {
-				return UNKNOW
+			} else if b == UNKNOWN {
+				return UNKNOWN
 			} else {
 				return UNDETERMINED
 			}
-		case UNKNOW:
+		case UNKNOWN:
 			if b == TRUE {
-				return UNKNOW
+				return UNKNOWN
 			} else if b == FALSE {
 				return FALSE
-			} else if b == UNKNOW {
-				return UNKNOW
+			} else if b == UNKNOWN {
+				return UNKNOWN
 			} else {
 				return UNDETERMINED
 			}
@@ -49,7 +49,7 @@ func (firstValue Value) AND(secondValue Value) Value {
 				return UNDETERMINED
 			} else if b == FALSE {
 				return FALSE
-			} else if b == UNKNOW {
+			} else if b == UNKNOWN {
 				return UNDETERMINED
 			} else {
 				return UNDETERMINED
@@ -70,20 +70,20 @@ func (firstValue Value) OR(secondValue Value) Value {
 				return TRUE
 			} else if b == FALSE {
 				return FALSE
-			} else if b == UNKNOW {
-				return UNKNOW
+			} else if b == UNKNOWN {
+				return UNKNOWN
 			} else {
 				return UNDETERMINED
 			}
 		case TRUE:
 			return TRUE
-		case UNKNOW:
+		case UNKNOWN:
 			if b == TRUE {
 				return TRUE
 			} else if b == FALSE {
-				return UNKNOW
-			} else if b == UNKNOW {
-				return UNKNOW
+				return UNKNOWN
+			} else if b == UNKNOWN {
+				return UNKNOWN
 			} else {
 				return UNDETERMINED
 			}
@@ -92,7 +92,7 @@ func (firstValue Value) OR(secondValue Value) Value {
 				return TRUE
 			} else if b == FALSE {
 				return UNDETERMINED
-			} else if b == UNKNOW {
+			} else if b == UNKNOWN {
 				return UNDETERMINED
 			} else {
 				return UNDETERMINED
@@ -113,8 +113,8 @@ func (firstValue Value) XOR(secondValue Value) Value {
 				return TRUE
 			} else if b == FALSE {
 				return FALSE
-			} else if b == UNKNOW {
-				return UNKNOW
+			} else if b == UNKNOWN {
+				return UNKNOWN
 			} else {
 				return UNDETERMINED
 			}
@@ -123,18 +123,18 @@ func (firstValue Value) XOR(secondValue Value) Value {
 				return FALSE
 			} else if b == FALSE {
 				return TRUE
-			} else if b == UNKNOW {
-				return UNKNOW
+			} else if b == UNKNOWN {
+				return UNKNOWN
 			} else {
 				return UNDETERMINED
 			}
-		case UNKNOW:
+		case UNKNOWN:
 			if b == TRUE {
-				return UNKNOW
+				return UNKNOWN
 			} else if b == FALSE {
-				return UNKNOW
-			} else if b == UNKNOW {
-				return UNKNOW
+				return UNKNOWN
+			} else if b == UNKNOWN {
+				return UNKNOWN
 			} else {
 				return UNDETERMINED
 			}
@@ -153,8 +153,8 @@ func (v Value) NOT() Value {
 			return TRUE
 		case TRUE:
 			return FALSE
-		case UNKNOW:
-			return UNKNOW
+		case UNKNOWN:
+			return UNKNOWN
 		case UNDETERMINED:
 			return UNDETERMINED
 		default:
@@ -169,7 +169,7 @@ func (v Value) Real() bool {
 func (res Value) FindUnknown_OR(know Value) Value {
 	if res == TRUE {
 		if know == TRUE {
-			return UNKNOW
+			return UNKNOWN
 		} else {
 			return TRUE
 		}
@@ -200,9 +200,9 @@ func (res Value) FindUnknown_XOR(know Value) Value {
 
 func (res Value) FindTwoUnknown_OR() (Value, Value) {
 	if res == TRUE {
-		return UNKNOW, UNKNOW
+		return UNKNOWN, UNKNOWN
 	} else  {
-		return UNKNOW, UNKNOW
+		return UNKNOWN, UNKNOWN
 	}
 }
 
@@ -210,15 +210,15 @@ func (res Value) FindTwoUnknown_AND() (Value, Value) {
 	if res == TRUE {
 		return TRUE, TRUE
 	} else  {
-		return UNKNOW, UNKNOW
+		return UNKNOWN, UNKNOWN
 	}
 }
 
 func (res Value) FindTwoUnknown_XOR() (Value, Value) {
 	if res == TRUE {
-		return UNKNOW, UNKNOW
+		return UNKNOWN, UNKNOWN
 	} else  {
-		return UNKNOW, UNKNOW
+		return UNKNOWN, UNKNOWN
 	}
 }
 
@@ -230,8 +230,8 @@ func (v Value) String() string {
 			return "TRUE"
 		case UNDETERMINED:
 			return "UNDETERMINED"
-		case UNKNOW:
-			return "UNKNOW"
+		case UNKNOWN:
+			return "UNKNOWN"
 		default:
 			return "UNKNOWN"
 	}
