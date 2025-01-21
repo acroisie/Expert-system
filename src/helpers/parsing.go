@@ -1,11 +1,12 @@
 package helpers
 
 import (
-	"fmt"
 	"bufio"
+	"expert-system/src/models"
+	"expert-system/src/parser"
+	"fmt"
 	"os"
 	"strings"
-	"expert-system/src/models"
 )
 
 func ParseFile(inputFile string, problem *models.Problem) {
@@ -49,9 +50,9 @@ func parseInitialFacts(line string, problem *models.Problem) {
 			os.Exit(1)
 		}
 
-		fact := models.Fact{
+		fact := models.Problem.Facts {
 			Letter: letter,
-			Value: models.TRUE,
+			Value: models.F,
 			Initial: true,
 			Reason: models.Reason{Msg: "Initial fact"},
 		}
@@ -80,11 +81,15 @@ func parseRule(line string, problem *models.Problem) {
 	line = strings.ReplaceAll(line, " ", "")
 	buff := strings.Split(line, "#")
 	rule := buff[0]
-	fmt.Println("Rule: ", rule)
 
-	for _, letter := range rule {
-		if letter >= 'A' && letter <= 'Z' {
-			fmt.Println("Char: ", letter)
-		}
+	p := parser.NewParser(rule)
+
+	r, err := p.ParseRule()
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
 	}
+
+	problem.Rules = append(problem.Rules, *r)
 }
