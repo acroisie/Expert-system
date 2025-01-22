@@ -12,25 +12,25 @@ var RuleDisplayLogs bool = false
 type Side int
 
 const (
-    LEFT Side = iota
-    RIGHT
+	LEFT Side = iota
+	RIGHT
 )
 
 type Rule struct {
-	Op ConditionalOperator
-	LeftExpressionGroup *ExpressionGroup
+	Op                   ConditionalOperator
+	LeftExpressionGroup  *ExpressionGroup
 	RightExpressionGroup *ExpressionGroup
-	LeftVariable *Variable
-	RightVariable *Variable
+	LeftVariable         *Variable
+	RightVariable        *Variable
 }
 
 func (rule Rule) Solving() (v.Value, v.Value, error) {
 
 	expressionGroupTmp := ExpressionGroup{
-		Op: NOTHING,
-		LeftVariable: rule.LeftVariable,
-		RightVariable: rule.RightVariable,
-		LeftExpressionGroup: rule.LeftExpressionGroup,
+		Op:                   NOTHING,
+		LeftVariable:         rule.LeftVariable,
+		RightVariable:        rule.RightVariable,
+		LeftExpressionGroup:  rule.LeftExpressionGroup,
 		RightExpressionGroup: rule.RightExpressionGroup,
 	}
 
@@ -54,18 +54,18 @@ func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) error {
 	LogRule(fmt.Sprintf("%s deduction, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
 	if leftValue.Real() && rightValue == v.UNKNOWN {
 		if rule.RightVariable != nil {
-            if rule.RightVariable.Not {
-                leftValue = leftValue.NOT()
-            }
+			if rule.RightVariable.Not {
+				leftValue = leftValue.NOT()
+			}
 			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue)
 		} else {
 			return rule.RightExpressionGroup.deduction(leftValue)
 		}
 	} else if leftValue == v.UNKNOWN && rightValue.Real() {
 		if rule.LeftVariable != nil {
-            if rule.LeftVariable.Not {
-                rightValue = rightValue.NOT()
-            }
+			if rule.LeftVariable.Not {
+				rightValue = rightValue.NOT()
+			}
 			return factManager.SetFactValueByLetter(rule.LeftVariable.Letter, rightValue)
 		} else {
 			return rule.LeftExpressionGroup.deduction(rightValue)
@@ -75,28 +75,28 @@ func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) error {
 }
 
 func RulesConditionalOperatorFormatter(rules []Rule) []Rule {
-    var newRules []Rule
-    for _, rule := range rules {
-        if rule.Op == IFF {
-            newRules = append(newRules, Rule{
-                LeftExpressionGroup: rule.LeftExpressionGroup,
+	var newRules []Rule
+	for _, rule := range rules {
+		if rule.Op == IFF {
+			newRules = append(newRules, Rule{
+				LeftExpressionGroup:  rule.LeftExpressionGroup,
 				RightExpressionGroup: rule.RightExpressionGroup,
-				LeftVariable: rule.LeftVariable,
-				RightVariable: rule.RightVariable,
-				Op: IMPLIES,
-            })
-            newRules = append(newRules, Rule{
-                LeftExpressionGroup: rule.RightExpressionGroup,
+				LeftVariable:         rule.LeftVariable,
+				RightVariable:        rule.RightVariable,
+				Op:                   IMPLIES,
+			})
+			newRules = append(newRules, Rule{
+				LeftExpressionGroup:  rule.RightExpressionGroup,
 				RightExpressionGroup: rule.LeftExpressionGroup,
-				LeftVariable: rule.RightVariable,
-				RightVariable: rule.LeftVariable,
-				Op: IMPLIES,
-            })
-        } else {
-            newRules = append(newRules, rule)
-        }
-    }
-    return newRules
+				LeftVariable:         rule.RightVariable,
+				RightVariable:        rule.LeftVariable,
+				Op:                   IMPLIES,
+			})
+		} else {
+			newRules = append(newRules, rule)
+		}
+	}
+	return newRules
 }
 
 // DISPLAY

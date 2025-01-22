@@ -6,7 +6,7 @@ import (
 )
 
 type Problem struct {
-	Facts []factManager.Fact
-	Rules []rules.Rule
+	Facts   []factManager.Fact
+	Rules   []rules.Rule
 	Queries []Query
 }

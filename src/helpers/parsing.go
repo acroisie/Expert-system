@@ -53,10 +53,10 @@ func parseInitialFacts(line string, problem *models.Problem) {
 		}
 
 		problem.Facts = append(problem.Facts, factManager.Fact{
-			Letter: letter,
-			Value:  v.TRUE,
+			Letter:  letter,
+			Value:   v.TRUE,
 			Initial: true,
-			Reason: factManager.Reason{Msg: "Initial fact"},
+			Reason:  factManager.Reason{Msg: "Initial fact"},
 		})
 	}
 }
