@@ -155,6 +155,9 @@ func (ep ExpressionGroup) DisplaySide(side Side) string {
 }
 
 func (ep ExpressionGroup) String() string {
+	if ep.Op == NOTHING {
+		return ep.DisplaySide(LEFT)
+	}
 	return fmt.Sprintf("%s %s %s", ep.DisplaySide(LEFT), ep.Op, ep.DisplaySide(RIGHT))
 }
 

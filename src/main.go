@@ -18,4 +18,5 @@ func main() {
 
 	fmt.Println(problem.Facts)
     fmt.Println(problem.Queries)
+    fmt.Println(problem.Rules)
 }
