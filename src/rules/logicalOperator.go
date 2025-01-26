@@ -1,9 +1,8 @@
 package rules
 
 import (
-	"errors"
 	"fmt"
-    "expert/v"
+    "expert-system/src/v"
 )
 
 var LogicalOperatorDisplayLogs bool = false
@@ -21,9 +20,9 @@ func (op LogicalOperator) isValid() bool {
     return op > NOTHING && op <= XOR
 }
 
-func (op LogicalOperator) solve(a v.Value, b v.Value) (v.Value, error) {
+func (op LogicalOperator) solve(a v.Value, b v.Value) (v.Value, *v.Error) {
     if !op.isValid() {
-        return v.UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", op.toString()))
+        return v.UNDETERMINED, &v.Error{Type: v.SOLVING, Message: fmt.Sprintf("Invalid operator : %s", op)}
     }
     var result v.Value
     switch op {
@@ -34,7 +33,7 @@ func (op LogicalOperator) solve(a v.Value, b v.Value) (v.Value, error) {
         case XOR:
             result = a.XOR(b)
         default:
-            return v.UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", op.toString()))
+            return v.UNDETERMINED, &v.Error{Type: v.SOLVING, Message: fmt.Sprintf("Invalid operator : %s", op)}
     }
     LogLogicalOp(fmt.Sprintf("Solving : %s %s %s", a, op, b))
     return result, nil

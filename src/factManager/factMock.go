@@ -1,7 +1,7 @@
 package factManager
 
 import (
-	"expert/v"
+	"expert-system/src/v"
 )
 
 func GetFactsMock() []Fact {
@@ -13,7 +13,6 @@ func GetFactsMock() []Fact {
         {Letter: 'E', Value: v.UNKNOWN, Initial: false, Reason: Reason{Msg: ""}},
         {Letter: 'D', Value: v.UNKNOWN, Initial: false, Reason: Reason{Msg: ""}},
         {Letter: 'F', Value: v.UNKNOWN, Initial: false, Reason: Reason{Msg: ""}},
-        {Letter: 'G', Value: v.UNKNOWN, Initial: false, Reason: Reason{Msg: ""}},
         {Letter: 'H', Value: v.UNKNOWN, Initial: false, Reason: Reason{Msg: ""}},
         {Letter: 'V', Value: v.UNKNOWN, Initial: false, Reason: Reason{Msg: ""}},
         {Letter: 'W', Value: v.UNKNOWN, Initial: false, Reason: Reason{Msg: ""}},

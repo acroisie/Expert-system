@@ -6,6 +6,8 @@ import (
 	"os"
 	"strings"
 	"expert-system/src/models"
+	"expert-system/src/factManager"
+	"expert-system/src/v"
 )
 
 func ParseFile(inputFile string, problem *models.Problem) {
@@ -49,11 +51,11 @@ func parseInitialFacts(line string, problem *models.Problem) {
 			os.Exit(1)
 		}
 
-		fact := models.Fact{
+		fact := factManager.Fact{
 			Letter: letter,
-			Value: models.TRUE,
+			Value: v.TRUE,
 			Initial: true,
-			Reason: models.Reason{Msg: "Initial fact"},
+			Reason: factManager.Reason{Msg: "Initial fact"},
 		}
 		problem.Facts = append(problem.Facts, fact)
 	}

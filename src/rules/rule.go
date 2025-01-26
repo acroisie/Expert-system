@@ -1,10 +1,10 @@
 package rules
 
 import (
-	"errors"
-	"expert/factManager"
-	"expert/v"
+	"expert-system/src/factManager"
+	"expert-system/src/v"
 	"fmt"
+	"sort"
 )
 
 var RuleDisplayLogs bool = false
@@ -24,7 +24,7 @@ type Rule struct {
 	RightVariable *Variable
 }
 
-func (rule Rule) Solving() (v.Value, v.Value, error) {
+func (rule Rule) Solving() (v.Value, v.Value, *v.Error) {
 
 	expressionGroupTmp := ExpressionGroup{
 		Op: NOTHING,
@@ -44,32 +44,49 @@ func (rule Rule) Solving() (v.Value, v.Value, error) {
 	}
 	LogRule(fmt.Sprintf("%s solving, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
 
-	if leftValue.Real() && rightValue.Real() && (leftValue != rightValue) {
-		return leftValue, rightValue, errors.New(fmt.Sprintf("CONTRADICTION : %s %s %s, for rule %s", leftValue, rule.Op, rightValue, rule))
+	if leftValue == v.TRUE && rightValue == v.FALSE {
+		return leftValue, rightValue, &v.Error{Type: v.CONTRADICTION, Message: fmt.Sprintf("%s %s %s, for rule %s", leftValue, rule.Op, rightValue, rule)}
 	}
 	return leftValue, rightValue, nil
 }
 
-func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) error {
+// func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
+// 	LogRule(fmt.Sprintf("%s deduction, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
+// 	if leftValue.Real() && rightValue == v.UNKNOWN {
+// 		if rule.RightVariable != nil {
+//             if rule.RightVariable.Not {
+//                 leftValue = leftValue.NOT()
+//             }
+// 			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue, false)
+// 		} else {
+// 			return rule.RightExpressionGroup.deduction(leftValue)
+// 		}
+// 	} else if leftValue == v.UNKNOWN && rightValue.Real() {
+// 		if rule.LeftVariable != nil {
+//             if rule.LeftVariable.Not {
+//                 rightValue = rightValue.NOT()
+//             }
+// 			return factManager.SetFactValueByLetter(rule.LeftVariable.Letter, rightValue, false)
+// 		} else {
+// 			return rule.LeftExpressionGroup.deduction(rightValue)
+// 		}
+// 	}
+// 	return nil
+// }
+
+func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
 	LogRule(fmt.Sprintf("%s deduction, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
-	if leftValue.Real() && rightValue == v.UNKNOWN {
+	if leftValue == v.TRUE && rightValue == v.UNKNOWN {
 		if rule.RightVariable != nil {
             if rule.RightVariable.Not {
                 leftValue = leftValue.NOT()
             }
-			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue)
+			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue, false)
 		} else {
 			return rule.RightExpressionGroup.deduction(leftValue)
 		}
-	} else if leftValue == v.UNKNOWN && rightValue.Real() {
-		if rule.LeftVariable != nil {
-            if rule.LeftVariable.Not {
-                rightValue = rightValue.NOT()
-            }
-			return factManager.SetFactValueByLetter(rule.LeftVariable.Letter, rightValue)
-		} else {
-			return rule.LeftExpressionGroup.deduction(rightValue)
-		}
+	} else if leftValue == v.TRUE && rightValue == v.FALSE {
+		return &v.Error{Type: v.CONTRADICTION, Message: fmt.Sprintf("%s %s %s, for rule %s", leftValue, rule.Op, rightValue, rule)}
 	}
 	return nil
 }
@@ -97,6 +114,43 @@ func RulesConditionalOperatorFormatter(rules []Rule) []Rule {
         }
     }
     return newRules
+}
+
+func SortFactList(ruleList []Rule, factList []factManager.Fact, lap int) []factManager.Fact {
+	var factListOccurence = make(map[rune]int)
+	for _, fact := range factList {
+		factListOccurence[fact.Letter] = 0
+	}
+	for _, rule := range ruleList {
+		if rule.LeftVariable != nil {
+			factListOccurence[rule.LeftVariable.Letter]++
+		} else {
+			rule.LeftExpressionGroup.getFactOccurences(&factListOccurence)
+		}
+		if rule.RightVariable != nil {
+			factListOccurence[rule.RightVariable.Letter]++
+		} else {
+			rule.RightExpressionGroup.getFactOccurences(&factListOccurence)
+		}
+	}
+	sort.Slice(factList, func(i, j int) bool {
+		occurrenceI := factListOccurence[factList[i].Letter]
+		occurrenceJ := factListOccurence[factList[j].Letter]
+		if (factList[i].Value == v.UNKNOWN && factList[j].Value != v.UNKNOWN) {
+			return true
+		} else if (factList[i].Value != v.UNKNOWN && factList[j].Value == v.UNKNOWN) {
+			return false
+		}
+		if occurrenceI == occurrenceJ {
+			return factList[i].Letter < factList[j].Letter
+		}
+		return occurrenceI > occurrenceJ
+	})
+	for lap > 0 {
+		factList = append(factList[1:], factList[0])
+		lap--
+	}
+	return factList
 }
 
 // DISPLAY

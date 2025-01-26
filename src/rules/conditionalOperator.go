@@ -1,8 +1,7 @@
 package rules
 
 import (
-	"errors"
-	"expert/v"
+	"expert-system/src/v"
 	"fmt"
 )
 
@@ -15,15 +14,15 @@ const (
     IFF
 )
 
-func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, error) {
+func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, *v.Error) {
     LogConditionalOp(fmt.Sprintf("Solving : %s %s %s", a, op, b))
     if !op.isValid() {
-        return v.UNDETERMINED, v.UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", op.toString()))
+        return v.UNDETERMINED, v.UNDETERMINED, &v.Error{Type: v.SOLVING, Message: fmt.Sprintf("Invalid operator : %s", op)}
     }
     switch a {
         case v.FALSE:
             if b == v.TRUE {
-                return v.FALSE, v.TRUE, errors.New("CONTRADICTION : v.FALSE => v.TRUE")
+                return v.FALSE, v.TRUE, &v.Error{Type: v.CONTRADICTION, Message: fmt.Sprintf("%s %s %s", a, op, b)}
             } else if b == v.FALSE {
                 return v.FALSE, v.FALSE, nil
             } else if b == v.UNKNOWN {
@@ -35,7 +34,7 @@ func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, err
             if b == v.TRUE {
                 return v.TRUE, v.TRUE, nil
             } else if b == v.FALSE {
-                return v.TRUE, v.FALSE, errors.New("CONTRADICTION : v.TRUE => v.FALSE")
+                return v.TRUE, v.FALSE, &v.Error{Type: v.CONTRADICTION, Message: fmt.Sprintf("%s %s %s", a, op, b)}
             } else if b == v.UNKNOWN {
                 return v.TRUE, v.TRUE, nil
             } else {
@@ -46,7 +45,7 @@ func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, err
         case v.UNDETERMINED:
             return v.UNDETERMINED, b, nil
         default:
-            return v.UNDETERMINED, v.UNDETERMINED, errors.New(fmt.Sprintf("Unknown Value: %s", a))
+            return v.UNDETERMINED, v.UNDETERMINED, &v.Error{Type: v.SOLVING, Message: fmt.Sprintf("Invalid value : %s", a)}
     }
 }
 
