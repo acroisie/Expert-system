@@ -57,5 +57,14 @@ func (op LogicalOperator) getSymbol() string {
 }
 
 func (op LogicalOperator) String() string {
-	return op.getSymbol()
+    switch op {
+    case AND:
+        return "AND"
+    case OR:
+        return "OR"
+    case XOR:
+        return "XOR"
+    default:
+        return "UNKNOWN_OPERATOR"
+    }
 }

@@ -133,3 +133,45 @@ func DisplayRules(rules []Rule) {
 		fmt.Printf("%d: %s\n", i, rule.String())
 	}
 }
+
+func (r *Rule) PrintAST() {
+    fmt.Printf("%s\n", r.Op)
+
+    childrenCount := 0
+    if r.LeftVariable != nil || r.LeftExpressionGroup != nil {
+        childrenCount++
+    }
+    if r.RightVariable != nil || r.RightExpressionGroup != nil {
+        childrenCount++
+    }
+
+    printedChildren := 0
+
+    if r.LeftVariable != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        if isLastChild {
+            fmt.Printf("└── %s\n", r.LeftVariable)
+        } else {
+            fmt.Printf("├── %s\n", r.LeftVariable)
+        }
+    } else if r.LeftExpressionGroup != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        r.LeftExpressionGroup.PrintAST("", isLastChild)
+    }
+
+    if r.RightVariable != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        if isLastChild {
+            fmt.Printf("└── %s\n", r.RightVariable)
+        } else {
+            fmt.Printf("├── %s\n", r.RightVariable)
+        }
+    } else if r.RightExpressionGroup != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        r.RightExpressionGroup.PrintAST("", isLastChild)
+    }
+}
