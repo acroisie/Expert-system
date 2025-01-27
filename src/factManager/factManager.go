@@ -76,7 +76,7 @@ func SetUnknowLettersToFalse() {
 func DisplayRunesTab(runes []rune) {
     runeString := ""
     for i:=0; i < len(runes); {
-        runeString += fmt.Sprintf("%c ", runes[i])
+        runeString += fmt.Sprintf("%c", runes[i])
         i++
     }
     fmt.Println(runeString)
@@ -88,6 +88,49 @@ func FactListToRuneMap(factList []Fact) map[rune]int {
 		factListOccurence[fact.Letter] = 0
 	}
 	return factListOccurence
+}
+
+func SliceALetter(factList []Fact, letter rune) []Fact {
+    var newFactList []Fact
+    for _, fact := range factList {
+        if fact.Letter != letter {
+            newFactList = append(newFactList, fact)
+        }
+    }
+    return newFactList
+}
+
+func GetLetterValue(factList []Fact, letter rune) (v.Value, *v.Error) {
+    for _, fact := range factList {
+        if fact.Letter == letter {
+            return fact.Value, nil
+        }
+    }
+    return v.UNKNOWN, &v.Error{Type: v.FACT_NOT_FOUND, Message: fmt.Sprintf("Fact with letter %c not found", letter)}
+}
+
+func CompareFactLists(factList1 []Fact, factList2 []Fact) bool {
+    if len(factList1) != len(factList2) {
+        return false
+    }
+    for i := range factList1 {
+        for j := range factList2 {
+            if factList1[i].Letter == factList2[j].Letter && factList1[i].Value != factList2[j].Value {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+func RemoveElement(factPossibilities [][]Fact, index int) [][]Fact {
+    if index < 0 || index >= len(factPossibilities) {
+        return factPossibilities
+    }
+    if index == len(factPossibilities) - 1 {
+        return factPossibilities[:index]
+    }
+    return append(factPossibilities[:index], factPossibilities[index+1:]...)
 }
 
 // DISPLAY
@@ -111,4 +154,15 @@ func DisplayFacts(facts []Fact) {
 
 func Display() {
     DisplayFacts(FactList)
+}
+
+func DisplayFactsOneLine(facts []Fact) {
+    factString := ""
+    for i, fact := range FactList {
+        factString += fmt.Sprintf("%s", fact)
+        if i < len(FactList) - 1 {
+            factString += ", "
+        }
+    }
+    fmt.Println(factString)
 }

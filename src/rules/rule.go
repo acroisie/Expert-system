@@ -116,6 +116,7 @@ func RulesConditionalOperatorFormatter(rules []Rule) []Rule {
     return newRules
 }
 
+// SortFactList - Sort factList by fact occurence in ruleList. Facts with UNKNOWN value are prioritized.
 func SortFactList(ruleList []Rule, factList []factManager.Fact, lap int) []factManager.Fact {
 	var factListOccurence = make(map[rune]int)
 	for _, fact := range factList {
@@ -146,11 +147,17 @@ func SortFactList(ruleList []Rule, factList []factManager.Fact, lap int) []factM
 		}
 		return occurrenceI > occurrenceJ
 	})
+	newFactList := make([]factManager.Fact, len(factList))
+	copy(newFactList, factList)
+	// ftm.Printf("Sort with lap %d\n", lap)
 	for lap > 0 {
-		factList = append(factList[1:], factList[0])
+		newFactListTmp := []factManager.Fact{}
+		newFactListTmp = append(newFactListTmp, newFactList[1:]...)
+		newFactListTmp = append(newFactListTmp, newFactList[0])
+		newFactList = newFactListTmp
 		lap--
 	}
-	return factList
+	return newFactList
 }
 
 // DISPLAY
