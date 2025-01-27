@@ -31,27 +31,107 @@ func InitializeFactList(newFactList []Fact) {
 	FactList = newFactList
 }
 
-func GetFactReferenceByLetter(letter rune) (*Fact, error) {
+func GetFactReferenceByLetter(letter rune) (*Fact, *v.Error) {
 	for i := range FactList {
 		if FactList[i].Letter == letter {
 			return &FactList[i], nil
 		}
 	}
-	return nil, errors.New(fmt.Sprintf("Fact with letter %c not found", letter))
+	return nil, &v.Error{Type: v.FACT_NOT_FOUND, Message: fmt.Sprintf("Fact with letter %c not found", letter)}
 }
 
-func SetFactValueByLetter(letter rune, Value v.Value) error {
-	fact, err := GetFactReferenceByLetter(letter)
-	if err != nil {
-		return err
+func SetFactValueByLetter(letter rune, Value v.Value, force bool) *v.Error {
+    fact, err := GetFactReferenceByLetter(letter)
+    if err != nil {
+        return err
+    }
+    if fact.Value == v.UNKNOWN || force {
+        oldValue := fact.Value
+        fact.Value = Value
+        FactChangeCounter++
+        LogFact(fmt.Sprintf("%c Value changed from %s to %s", letter, oldValue, fact.Value))
+    } else {
+        return &v.Error{Type: v.CONTRADICTION, Message: fmt.Sprintf("Fact with letter %c already has a value", letter)}
+    }
+    return nil
+}
+
+func GetUnknowLetters() []rune {
+    var unknowLetters []rune
+    for _, fact := range FactList {
+        if fact.Value == v.UNKNOWN {
+            unknowLetters = append(unknowLetters, fact.Letter)
+        }
+    }
+    return unknowLetters
+}
+
+func SetUnknowLettersToFalse() {
+    for _, fact := range FactList {
+        if fact.Value == v.UNKNOWN {
+            SetFactValueByLetter(fact.Letter, v.FALSE, false)
+        }
+    }
+}
+
+func DisplayRunesTab(runes []rune) {
+    runeString := ""
+    for i:=0; i < len(runes); {
+        runeString += fmt.Sprintf("%c", runes[i])
+        i++
+    }
+    fmt.Println(runeString)
+}
+
+func FactListToRuneMap(factList []Fact) map[rune]int {
+	var factListOccurence = make(map[rune]int)
+	for _, fact := range factList {
+		factListOccurence[fact.Letter] = 0
 	}
-	if fact.Value != Value {
-		oldValue := fact.Value
-		fact.Value = Value
-		FactChangeCounter++
-		LogFact(fmt.Sprintf("%c Value changed from %s to %s", letter, oldValue, fact.Value))
-	}
-	return nil
+	return factListOccurence
+}
+
+func SliceALetter(factList []Fact, letter rune) []Fact {
+    var newFactList []Fact
+    for _, fact := range factList {
+        if fact.Letter != letter {
+            newFactList = append(newFactList, fact)
+        }
+    }
+    return newFactList
+}
+
+func GetLetterValue(factList []Fact, letter rune) (v.Value, *v.Error) {
+    for _, fact := range factList {
+        if fact.Letter == letter {
+            return fact.Value, nil
+        }
+    }
+    return v.UNKNOWN, &v.Error{Type: v.FACT_NOT_FOUND, Message: fmt.Sprintf("Fact with letter %c not found", letter)}
+}
+
+func CompareFactLists(factList1 []Fact, factList2 []Fact) bool {
+    if len(factList1) != len(factList2) {
+        return false
+    }
+    for i := range factList1 {
+        for j := range factList2 {
+            if factList1[i].Letter == factList2[j].Letter && factList1[i].Value != factList2[j].Value {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+func RemoveElement(factPossibilities [][]Fact, index int) [][]Fact {
+    if index < 0 || index >= len(factPossibilities) {
+        return factPossibilities
+    }
+    if index == len(factPossibilities) - 1 {
+        return factPossibilities[:index]
+    }
+    return append(factPossibilities[:index], factPossibilities[index+1:]...)
 }
 
 // DISPLAY
@@ -75,4 +155,15 @@ func DisplayFacts(facts []Fact) {
 
 func Display() {
 	DisplayFacts(FactList)
+}
+
+func DisplayFactsOneLine(facts []Fact) {
+    factString := ""
+    for i, fact := range FactList {
+        factString += fmt.Sprintf("%s", fact)
+        if i < len(FactList) - 1 {
+            factString += ", "
+        }
+    }
+    fmt.Println(factString)
 }

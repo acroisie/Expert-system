@@ -1,7 +1,6 @@
 package rules
 
 import (
-	"errors"
 	"expert-system/src/factManager"
 	"expert-system/src/v"
 	"fmt"
@@ -17,11 +16,11 @@ type ExpressionGroup struct {
 	RightExpressionGroup *ExpressionGroup
 }
 
-func (ep ExpressionGroup) solving() (v.Value, error) {
+func (ep ExpressionGroup) solving() (v.Value, *v.Error) {
 	LogEp(fmt.Sprintf("ExpressionGroup solving : %s", ep))
 
 	if !ep.Op.isValid() {
-		return v.UNDETERMINED, errors.New(fmt.Sprintf("Unknown operator: %s", ep.Op))
+		return v.UNDETERMINED, &v.Error{Type: v.SOLVING, Message: fmt.Sprintf("Invalid operator : %s", ep.Op)}
 	}
 
 	leftValue, err := solvingSide(ep.LeftVariable, ep.LeftExpressionGroup)
@@ -43,7 +42,7 @@ func (ep ExpressionGroup) solving() (v.Value, error) {
 	return result, nil
 }
 
-func solvingSide(variable *Variable, expressionGroup *ExpressionGroup) (v.Value, error) {
+func solvingSide(variable *Variable, expressionGroup *ExpressionGroup) (v.Value, *v.Error) {
 	if variable != nil {
 		fact, err := factManager.GetFactReferenceByLetter(variable.Letter)
 		if err != nil {
@@ -56,11 +55,11 @@ func solvingSide(variable *Variable, expressionGroup *ExpressionGroup) (v.Value,
 	} else if expressionGroup != nil {
 		return expressionGroup.solving()
 	} else {
-		return v.UNDETERMINED, errors.New("Left side is empty")
+		return v.UNDETERMINED, &v.Error{Type: v.SOLVING, Message: "Variable and ExpressionGroup are nil"}
 	}
 }
 
-func (ep ExpressionGroup) deduction(result v.Value) error {
+func (ep ExpressionGroup) deduction(result v.Value) *v.Error {
 	LogEp(fmt.Sprintf("%s deduction with result : %s", ep, result))
 	if result.Real() {
 		leftValue, err := solvingSide(ep.LeftVariable, ep.LeftExpressionGroup)
@@ -78,23 +77,31 @@ func (ep ExpressionGroup) deduction(result v.Value) error {
 			return ep.findOneUnknown(result, leftValue, RIGHT)
 		} else if leftValue == v.UNKNOWN && rightValue == v.UNKNOWN {
 			return ep.findTwoUnknow(result)
+		} else if leftValue.Real() && rightValue.Real() {
+			res, err := ep.Op.solve(leftValue, rightValue)
+			if err != nil {
+				return err
+			}
+			if res != result {
+				return &v.Error{Type: v.CONTRADICTION, Message: fmt.Sprintf("in deduction: %s %s %s, for %s", leftValue, ep.Op, rightValue, ep)}
+			}
 		}
 	}
 	return nil
 }
 
-func sideDeduction(variable *Variable, expressionGroup *ExpressionGroup, newValue v.Value) error {
+func sideDeduction(variable *Variable, expressionGroup *ExpressionGroup, newValue v.Value) *v.Error {
 	if variable != nil {
 		if variable.Not {
 			newValue = newValue.NOT()
 		}
-		return factManager.SetFactValueByLetter(variable.Letter, newValue)
+		return factManager.SetFactValueByLetter(variable.Letter, newValue, false)
 	} else {
 		return expressionGroup.deduction(newValue)
 	}
 }
 
-func (ep ExpressionGroup) findOneUnknown(res v.Value, know v.Value, side Side) error {
+func (ep ExpressionGroup) findOneUnknown(res v.Value, know v.Value, side Side) *v.Error {
 	var newValue v.Value
 	if ep.Op == OR {
 		newValue = res.FindUnknown_OR(know)
@@ -111,7 +118,7 @@ func (ep ExpressionGroup) findOneUnknown(res v.Value, know v.Value, side Side) e
 	}
 }
 
-func (ep ExpressionGroup) findTwoUnknow(res v.Value) error {
+func (ep ExpressionGroup) findTwoUnknow(res v.Value) *v.Error {
 	var newLeftValue v.Value
 	var newRightValue v.Value
 	if ep.Op == OR {
@@ -128,6 +135,19 @@ func (ep ExpressionGroup) findTwoUnknow(res v.Value) error {
 		return sideDeduction(ep.RightVariable, ep.RightExpressionGroup, newRightValue)
 	}
 	return nil
+}
+
+func (ep ExpressionGroup) getFactOccurences(factListOccurence *map[rune]int) {
+	if ep.LeftVariable != nil {
+		(*factListOccurence)[ep.LeftVariable.Letter]++
+	} else {
+		ep.LeftExpressionGroup.getFactOccurences(factListOccurence)
+	}
+	if ep.RightVariable != nil {
+		(*factListOccurence)[ep.RightVariable.Letter]++
+	} else {
+		ep.RightExpressionGroup.getFactOccurences(factListOccurence)
+	}
 }
 
 // DISPLAY
