@@ -1,7 +1,6 @@
 package factManager
 
 import (
-	"errors"
 	"expert-system/src/v"
 	"fmt"
 )
