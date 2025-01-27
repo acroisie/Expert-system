@@ -129,17 +129,117 @@ func GetRulesMock() []Rule {
 			RightVariable:        &Variable{Letter: 'C', Not: false},
 		},
 
-		// A + B <=> !C
-		// Rule{
-		//     Op: IFF,
-		//     LeftExpressionGroup: &ExpressionGroup{
-		//         Op: AND,
-		//         LeftVariable: &Variable{Letter: 'A', Not: false},
-		//         RightVariable: &Variable{Letter: 'B', Not: false},
-		//     },
-		//     RightExpressionGroup: nil,
-		//     RightVariable: &Variable{Letter: 'C', Not: true},
-		// },
+	}
+	return rules
+}
+
+func GetRulesMock2() []Rule {
+	rules := []Rule{
+		// B => A
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: nil,
+			LeftVariable:        &Variable{Letter: 'B', Not: false},
+			RightExpressionGroup: nil,
+			RightVariable:       &Variable{Letter: 'A', Not: false},
+		},
+
+		// D + E => B
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: &ExpressionGroup{
+				Op:           AND,
+				LeftVariable: &Variable{Letter: 'D', Not: false},
+				RightVariable: &Variable{Letter: 'E', Not: false},
+			},
+			RightExpressionGroup: nil,
+			RightVariable:        &Variable{Letter: 'B', Not: false},
+		},
+
+		// G + H => F
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: &ExpressionGroup{
+				Op:           AND,
+				LeftVariable: &Variable{Letter: 'G', Not: false},
+				RightVariable: &Variable{Letter: 'H', Not: false},
+			},
+			RightExpressionGroup: nil,
+			RightVariable:        &Variable{Letter: 'F', Not: false},
+		},
+
+		// I + J => G
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: &ExpressionGroup{
+				Op:           AND,
+				LeftVariable: &Variable{Letter: 'I', Not: false},
+				RightVariable: &Variable{Letter: 'J', Not: false},
+			},
+			RightExpressionGroup: nil,
+			RightVariable:        &Variable{Letter: 'G', Not: false},
+		},
+
+		// G => H
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: nil,
+			LeftVariable:        &Variable{Letter: 'G', Not: false},
+			RightExpressionGroup: nil,
+			RightVariable:       &Variable{Letter: 'H', Not: false},
+		},
+
+		// L + M => K
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: &ExpressionGroup{
+				Op:           AND,
+				LeftVariable: &Variable{Letter: 'L', Not: false},
+				RightVariable: &Variable{Letter: 'M', Not: false},
+			},
+			RightExpressionGroup: nil,
+			RightVariable:        &Variable{Letter: 'K', Not: false},
+		},
+
+		// O + P => L + N + Z
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: &ExpressionGroup{
+				Op:           AND,
+				LeftVariable: &Variable{Letter: 'O', Not: false},
+				RightVariable: &Variable{Letter: 'P', Not: false},
+			},
+			RightExpressionGroup: &ExpressionGroup{
+				Op:           AND,
+				LeftVariable: &Variable{Letter: 'L', Not: false},
+				RightExpressionGroup: &ExpressionGroup{
+					Op:           AND,
+					LeftVariable: &Variable{Letter: 'N', Not: false},
+					RightVariable: &Variable{Letter: 'Z', Not: false},
+				},
+			},
+		},
+
+		// N + Z => M
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: &ExpressionGroup{
+				Op:           AND,
+				LeftVariable: &Variable{Letter: 'N', Not: false},
+				RightVariable: &Variable{Letter: 'Z', Not: false},
+			},
+			RightExpressionGroup: nil,
+			RightVariable:        &Variable{Letter: 'M', Not: false},
+		},
+
+		// E => O
+		Rule{
+			Op: IMPLIES,
+			LeftExpressionGroup: nil,
+			LeftVariable:        &Variable{Letter: 'E', Not: false},
+			RightExpressionGroup: nil,
+			RightVariable:       &Variable{Letter: 'O', Not: false},
+		},
 	}
 	return rules
 }

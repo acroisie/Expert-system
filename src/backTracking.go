@@ -7,10 +7,6 @@ import (
 	"expert-system/src/v"
 )
 
-// func CheckForwardChecking() *v.Error {
-
-// }
-
 func factPossibilitiesFusion(factPossibilities [][]factManager.Fact) ([]factManager.Fact, *v.Error) {
     fmt.Println("FactPossibilitiesFusion")
 
@@ -93,6 +89,32 @@ func factPossibilitiesFusion(factPossibilities [][]factManager.Fact) ([]factMana
     }
 
     return mergedFacts, nil
+}
+
+func countTrueValues(factList []factManager.Fact) int {
+	count := 0
+	for _, fact := range factList {
+		if fact.Value == v.TRUE {
+			count++
+		}
+	}
+	return count
+}
+
+func getSmallestPossibilities(factPossibilities [][]factManager.Fact) ([][]factManager.Fact) {
+	smallestPossibilities := [][]factManager.Fact{}
+	smallestPossibilitiesSize := 0
+	for _, possibility := range factPossibilities {
+		trueCounter := countTrueValues(possibility)
+		if trueCounter < smallestPossibilitiesSize || smallestPossibilitiesSize == 0 {
+			smallestPossibilities = [][]factManager.Fact{}
+			smallestPossibilities = append(smallestPossibilities, possibility)
+			smallestPossibilitiesSize = trueCounter
+		} else if trueCounter == smallestPossibilitiesSize {
+			smallestPossibilities = append(smallestPossibilities, possibility)
+		}
+	}
+	return smallestPossibilities
 }
 
 func factPossibilitiesFusion2(factPossibilities [][]factManager.Fact) ([]factManager.Fact, *v.Error) {
@@ -238,7 +260,8 @@ func BackTracking() (*[]factManager.Fact, *v.Error) {
 		fmt.Printf("\n---------- FACTS %d ----------\n", i)
 		factManager.DisplayFacts(factList)
 	}
-	fact, err := factPossibilitiesFusion2(factPossibilitiesTotal)
+	factPossibilitiesTotalTmp := getSmallestPossibilities(factPossibilitiesTotal)
+	fact, err := factPossibilitiesFusion2(factPossibilitiesTotalTmp)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 	} else {

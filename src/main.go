@@ -3,6 +3,8 @@ package main
 import (
     "expert-system/src/helpers"
     "expert-system/src/models"
+    "expert-system/src/rules"
+    "expert-system/src/factManager"
     "fmt"
     "os"
 )
@@ -22,4 +24,9 @@ func main() {
         rule.PrintAST()
         fmt.Println()
     }
+    ruleList := rules.GetRulesMock()
+	ruleList = rules.RulesConditionalOperatorFormatter(ruleList)
+	factManager.FactList = factManager.GetFactsMock()
+	subRuleList := ruleList
+	Algo(subRuleList)
 }

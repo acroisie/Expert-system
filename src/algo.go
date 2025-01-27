@@ -14,17 +14,22 @@ func Algo(ruleList []rules.Rule) {
 	rules.RuleDisplayLogs = false
 	rules.ExpressionGroupDisplayLogs = false
 
+	rules.DisplayRules(ruleList)
 	fmt.Println("\n\n---------- INITIAL FACTS ----------")
 	factManager.Display()
+
 	RuleList = ruleList
 	ForwardChecking()
 	fmt.Println("\n\n---------- FACTS AFTER FORWARD CHECKING ----------")
 	factManager.Display()
 	
-	result, err := BackTracking()
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(result)
+	unknowLetters := factManager.GetUnknowLetters()
+	if len(unknowLetters) > 0 {
+		result, err := BackTracking()
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(result)
+		}
 	}
 }
