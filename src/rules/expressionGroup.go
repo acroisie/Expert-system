@@ -160,3 +160,55 @@ func (ep ExpressionGroup) String() string {
 	}
 	return fmt.Sprintf("%s %s %s", ep.DisplaySide(LEFT), ep.Op, ep.DisplaySide(RIGHT))
 }
+
+func (eg *ExpressionGroup) PrintAST(prefix string, isLast bool) {
+    if eg.Op == NOTHING {
+        if eg.LeftVariable != nil {
+            if isLast {
+                fmt.Printf("%s└── %s\n", prefix, eg.LeftVariable)
+            } else {
+                fmt.Printf("%s├── %s\n", prefix, eg.LeftVariable)
+            }
+        } else if eg.LeftExpressionGroup != nil {
+            eg.LeftExpressionGroup.PrintAST(prefix, isLast)
+        }
+        return
+    }
+
+    if isLast {
+        fmt.Printf("%s└── %s\n", prefix, eg.Op)
+    } else {
+        fmt.Printf("%s├── %s\n", prefix, eg.Op)
+    }
+
+    newPrefix := prefix
+    if isLast {
+        newPrefix += "    "
+    } else {
+        newPrefix += "│   "
+    }
+
+    childrenCount := 0
+    if eg.LeftVariable != nil || eg.LeftExpressionGroup != nil {
+        childrenCount++
+    }
+    if eg.RightVariable != nil || eg.RightExpressionGroup != nil {
+        childrenCount++
+    }
+
+    if eg.LeftVariable != nil {
+        if childrenCount == 2 {
+            fmt.Printf("%s├── %s\n", newPrefix, eg.LeftVariable)
+        } else {
+            fmt.Printf("%s└── %s\n", newPrefix, eg.LeftVariable)
+        }
+    } else if eg.LeftExpressionGroup != nil {
+        eg.LeftExpressionGroup.PrintAST(newPrefix, childrenCount < 2)
+    }
+
+    if eg.RightVariable != nil {
+        fmt.Printf("%s└── %s\n", newPrefix, eg.RightVariable)
+    } else if eg.RightExpressionGroup != nil {
+        eg.RightExpressionGroup.PrintAST(newPrefix, true)
+    }
+}
