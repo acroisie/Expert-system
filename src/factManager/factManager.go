@@ -1,25 +1,26 @@
 package factManager
 
 import (
+	"errors"
+	"expert-system/src/v"
 	"fmt"
-    "expert-system/src/v"
 )
 
 const (
-	Red    = "\033[31m"
-    Green  = "\033[32m"
-	Reset  = "\033[0m"
+	Red   = "\033[31m"
+	Green = "\033[32m"
+	Reset = "\033[0m"
 )
 
 type Reason struct {
-    Msg string
+	Msg string
 }
 
 type Fact struct {
-    Letter rune
-    Value v.Value
-    Initial bool
-    Reason Reason
+	Letter  rune
+	Value   v.Value
+	Initial bool
+	Reason  Reason
 }
 
 var FactList []Fact
@@ -136,24 +137,24 @@ func RemoveElement(factPossibilities [][]Fact, index int) [][]Fact {
 // DISPLAY
 
 func (f Fact) String() string {
-    return fmt.Sprintf("%c = %s", f.Letter, f.Value)
+	return fmt.Sprintf("%c = %s", f.Letter, f.Value)
 }
 
 func LogFact(msg string) {
-    if FactDisplayLogs {
-        fmt.Println(Green, fmt.Sprintf("Fact - %s", msg), Reset)
-    }
+	if FactDisplayLogs {
+		fmt.Println(Green, fmt.Sprintf("Fact - %s", msg), Reset)
+	}
 }
 
 func DisplayFacts(facts []Fact) {
-    fmt.Println("---------- FACTS ----------")
-    for i, fact := range facts {
-        fmt.Printf("%d: %s\n", i, fact)
-    }
+	fmt.Println("---------- FACTS ----------")
+	for i, fact := range facts {
+		fmt.Printf("%d: %s\n", i, fact)
+	}
 }
 
 func Display() {
-    DisplayFacts(FactList)
+	DisplayFacts(FactList)
 }
 
 func DisplayFactsOneLine(facts []Fact) {

@@ -10,14 +10,14 @@ var LogicalOperatorDisplayLogs bool = false
 type LogicalOperator int
 
 const (
-    NOTHING LogicalOperator = iota
-    AND
-    OR
-    XOR
+	NOTHING LogicalOperator = iota
+	AND
+	OR
+	XOR
 )
 
 func (op LogicalOperator) isValid() bool {
-    return op > NOTHING && op <= XOR
+	return op > NOTHING && op <= XOR
 }
 
 func (op LogicalOperator) solve(a v.Value, b v.Value) (v.Value, *v.Error) {
@@ -42,19 +42,28 @@ func (op LogicalOperator) solve(a v.Value, b v.Value) (v.Value, *v.Error) {
 // DISPLAY
 
 func LogLogicalOp(msg string) {
-    if LogicalOperatorDisplayLogs {
-        fmt.Println(fmt.Sprintf("LogicalOperator - %s", msg))
-    }
+	if LogicalOperatorDisplayLogs {
+		fmt.Println(fmt.Sprintf("LogicalOperator - %s", msg))
+	}
 }
 
 func (op LogicalOperator) toString() string {
-    return [...]string{"NOTHING", "AND", "OR", "XOR"}[op]
+	return [...]string{"NOTHING", "AND", "OR", "XOR"}[op]
 }
 
 func (op LogicalOperator) getSymbol() string {
-    return [...]string{"", "+", "|", "^"}[op]
+	return [...]string{"", "+", "|", "^"}[op]
 }
 
 func (op LogicalOperator) String() string {
-	return op.getSymbol()
+    switch op {
+    case AND:
+        return "AND"
+    case OR:
+        return "OR"
+    case XOR:
+        return "XOR"
+    default:
+        return "UNKNOWN_OPERATOR"
+    }
 }

@@ -10,8 +10,8 @@ var ConditionalOperatorDisplayLogs bool = false
 type ConditionalOperator int
 
 const (
-    IMPLIES ConditionalOperator = iota
-    IFF
+	IMPLIES ConditionalOperator = iota
+	IFF
 )
 
 func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, *v.Error) {
@@ -50,23 +50,23 @@ func (op ConditionalOperator) solve(a v.Value, b v.Value) (v.Value, v.Value, *v.
 }
 
 func (op ConditionalOperator) isValid() bool {
-    return op == IMPLIES
+	return op == IMPLIES
 }
 
 // DISPLAY
 
 func LogConditionalOp(msg string) {
-    if ConditionalOperatorDisplayLogs {
-        fmt.Println(fmt.Sprintf("ConditionalOperator - %s", msg))
-    }
+	if ConditionalOperatorDisplayLogs {
+		fmt.Println(fmt.Sprintf("ConditionalOperator - %s", msg))
+	}
 }
 
 func (op ConditionalOperator) toString() string {
-    return [...]string{"IMPLIES", "IFF"}[op]
+	return [...]string{"IMPLIES", "IFF"}[op]
 }
 
 func (op ConditionalOperator) getSymbol() string {
-    return [...]string{"=>", "<=>"}[op]
+	return [...]string{"=>", "<=>"}[op]
 }
 
 func (op ConditionalOperator) String() string {

@@ -12,25 +12,25 @@ var RuleDisplayLogs bool = false
 type Side int
 
 const (
-    LEFT Side = iota
-    RIGHT
+	LEFT Side = iota
+	RIGHT
 )
 
 type Rule struct {
-	Op ConditionalOperator
-	LeftExpressionGroup *ExpressionGroup
+	Op                   ConditionalOperator
+	LeftExpressionGroup  *ExpressionGroup
 	RightExpressionGroup *ExpressionGroup
-	LeftVariable *Variable
-	RightVariable *Variable
+	LeftVariable         *Variable
+	RightVariable        *Variable
 }
 
 func (rule Rule) Solving() (v.Value, v.Value, *v.Error) {
 
 	expressionGroupTmp := ExpressionGroup{
-		Op: NOTHING,
-		LeftVariable: rule.LeftVariable,
-		RightVariable: rule.RightVariable,
-		LeftExpressionGroup: rule.LeftExpressionGroup,
+		Op:                   NOTHING,
+		LeftVariable:         rule.LeftVariable,
+		RightVariable:        rule.RightVariable,
+		LeftExpressionGroup:  rule.LeftExpressionGroup,
 		RightExpressionGroup: rule.RightExpressionGroup,
 	}
 
@@ -92,28 +92,28 @@ func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
 }
 
 func RulesConditionalOperatorFormatter(rules []Rule) []Rule {
-    var newRules []Rule
-    for _, rule := range rules {
-        if rule.Op == IFF {
-            newRules = append(newRules, Rule{
-                LeftExpressionGroup: rule.LeftExpressionGroup,
+	var newRules []Rule
+	for _, rule := range rules {
+		if rule.Op == IFF {
+			newRules = append(newRules, Rule{
+				LeftExpressionGroup:  rule.LeftExpressionGroup,
 				RightExpressionGroup: rule.RightExpressionGroup,
-				LeftVariable: rule.LeftVariable,
-				RightVariable: rule.RightVariable,
-				Op: IMPLIES,
-            })
-            newRules = append(newRules, Rule{
-                LeftExpressionGroup: rule.RightExpressionGroup,
+				LeftVariable:         rule.LeftVariable,
+				RightVariable:        rule.RightVariable,
+				Op:                   IMPLIES,
+			})
+			newRules = append(newRules, Rule{
+				LeftExpressionGroup:  rule.RightExpressionGroup,
 				RightExpressionGroup: rule.LeftExpressionGroup,
-				LeftVariable: rule.RightVariable,
-				RightVariable: rule.LeftVariable,
-				Op: IMPLIES,
-            })
-        } else {
-            newRules = append(newRules, rule)
-        }
-    }
-    return newRules
+				LeftVariable:         rule.RightVariable,
+				RightVariable:        rule.LeftVariable,
+				Op:                   IMPLIES,
+			})
+		} else {
+			newRules = append(newRules, rule)
+		}
+	}
+	return newRules
 }
 
 // SortFactList - Sort factList by fact occurence in ruleList. Facts with UNKNOWN value are prioritized.
@@ -193,4 +193,46 @@ func DisplayRules(rules []Rule) {
 	for i, rule := range rules {
 		fmt.Printf("%d: %s\n", i, rule.String())
 	}
+}
+
+func (r *Rule) PrintAST() {
+    fmt.Printf("%s\n", r.Op)
+
+    childrenCount := 0
+    if r.LeftVariable != nil || r.LeftExpressionGroup != nil {
+        childrenCount++
+    }
+    if r.RightVariable != nil || r.RightExpressionGroup != nil {
+        childrenCount++
+    }
+
+    printedChildren := 0
+
+    if r.LeftVariable != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        if isLastChild {
+            fmt.Printf("└── %s\n", r.LeftVariable)
+        } else {
+            fmt.Printf("├── %s\n", r.LeftVariable)
+        }
+    } else if r.LeftExpressionGroup != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        r.LeftExpressionGroup.PrintAST("", isLastChild)
+    }
+
+    if r.RightVariable != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        if isLastChild {
+            fmt.Printf("└── %s\n", r.RightVariable)
+        } else {
+            fmt.Printf("├── %s\n", r.RightVariable)
+        }
+    } else if r.RightExpressionGroup != nil {
+        printedChildren++
+        isLastChild := (printedChildren == childrenCount)
+        r.RightExpressionGroup.PrintAST("", isLastChild)
+    }
 }
