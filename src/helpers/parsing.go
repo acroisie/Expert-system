@@ -1,24 +1,27 @@
 package helpers
 
 import (
-	"fmt"
 	"bufio"
+	"expert-system/src/factManager"
+	"expert-system/src/models"
+	"expert-system/src/parser"
+	"expert-system/src/v"
+	"fmt"
 	"os"
 	"strings"
-	"expert-system/src/models"
 )
 
 func ParseFile(inputFile string, problem *models.Problem) {
-    file, err := os.Open(inputFile)
-    if err != nil {
-        fmt.Println("Error: ", err)
-        return
-    }
-    defer file.Close()
+	file, err := os.Open(inputFile)
+	if err != nil {
+		fmt.Println("Error: ", err)
+		return
+	}
+	defer file.Close()
 
-    scanner := bufio.NewScanner(file)
-    for scanner.Scan() {
-        line := strings.TrimSpace(scanner.Text())
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
@@ -31,11 +34,11 @@ func ParseFile(inputFile string, problem *models.Problem) {
 		default:
 			parseRule(line, problem)
 		}
-    }
+	}
 
-    if err := scanner.Err(); err != nil {
-        fmt.Println("Error: ", err)
-    }
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error: ", err)
+	}
 }
 
 func parseInitialFacts(line string, problem *models.Problem) {
@@ -49,27 +52,26 @@ func parseInitialFacts(line string, problem *models.Problem) {
 			os.Exit(1)
 		}
 
-		fact := models.Fact{
-			Letter: letter,
-			Value: models.TRUE,
+		problem.Facts = append(problem.Facts, factManager.Fact{
+			Letter:  letter,
+			Value:   v.TRUE,
 			Initial: true,
-			Reason: models.Reason{Msg: "Initial fact"},
-		}
-		problem.Facts = append(problem.Facts, fact)
+			Reason:  factManager.Reason{Msg: "Initial fact"},
+		})
 	}
 }
 
 func parseQueries(line string, problem *models.Problem) {
 	buff := strings.Split(line, " ")
 	queries := buff[0]
-	
+
 	for _, letter := range queries {
 		if letter < 'A' || letter > 'Z' {
 			fmt.Println("Error: Invalid query")
 			os.Exit(1)
 		}
 
-		query := models.Query {
+		query := models.Query{
 			Letter: letter,
 		}
 		problem.Queries = append(problem.Queries, query)
@@ -80,11 +82,15 @@ func parseRule(line string, problem *models.Problem) {
 	line = strings.ReplaceAll(line, " ", "")
 	buff := strings.Split(line, "#")
 	rule := buff[0]
-	fmt.Println("Rule: ", rule)
 
-	for _, letter := range rule {
-		if letter >= 'A' && letter <= 'Z' {
-			fmt.Println("Char: ", letter)
-		}
+	p := parser.NewParser(rule)
+
+	r, err := p.ParseRule()
+
+	if err != nil {
+		fmt.Println("Error: ", err)
+		os.Exit(1)
 	}
+
+	problem.Rules = append(problem.Rules, *r)
 }

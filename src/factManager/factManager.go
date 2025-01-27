@@ -1,26 +1,26 @@
 package factManager
 
 import (
+	"errors"
+	"expert-system/src/v"
 	"fmt"
-    "errors"
-    "expert/v"
 )
 
 const (
-	Red    = "\033[31m"
-    Green  = "\033[32m"
-	Reset  = "\033[0m"
+	Red   = "\033[31m"
+	Green = "\033[32m"
+	Reset = "\033[0m"
 )
 
 type Reason struct {
-    Msg string
+	Msg string
 }
 
 type Fact struct {
-    Letter rune
-    Value v.Value
-    Initial bool
-    Reason Reason
+	Letter  rune
+	Value   v.Value
+	Initial bool
+	Reason  Reason
 }
 
 var FactList []Fact
@@ -41,38 +41,38 @@ func GetFactReferenceByLetter(letter rune) (*Fact, error) {
 }
 
 func SetFactValueByLetter(letter rune, Value v.Value) error {
-    fact, err := GetFactReferenceByLetter(letter)
-    if err != nil {
-        return err
-    }
-    if fact.Value != Value {
-        oldValue := fact.Value
-        fact.Value = Value
-        FactChangeCounter++
-        LogFact(fmt.Sprintf("%c Value changed from %s to %s", letter, oldValue, fact.Value))
-    }
-    return nil
+	fact, err := GetFactReferenceByLetter(letter)
+	if err != nil {
+		return err
+	}
+	if fact.Value != Value {
+		oldValue := fact.Value
+		fact.Value = Value
+		FactChangeCounter++
+		LogFact(fmt.Sprintf("%c Value changed from %s to %s", letter, oldValue, fact.Value))
+	}
+	return nil
 }
 
 // DISPLAY
 
 func (f Fact) String() string {
-    return fmt.Sprintf("%c = %s", f.Letter, f.Value)
+	return fmt.Sprintf("%c = %s", f.Letter, f.Value)
 }
 
 func LogFact(msg string) {
-    if FactDisplayLogs {
-        fmt.Println(Green, fmt.Sprintf("Fact - %s", msg), Reset)
-    }
+	if FactDisplayLogs {
+		fmt.Println(Green, fmt.Sprintf("Fact - %s", msg), Reset)
+	}
 }
 
 func DisplayFacts(facts []Fact) {
-    fmt.Println("---------- FACTS ----------")
-    for i, fact := range facts {
-        fmt.Printf("%d: %s\n", i, fact)
-    }
+	fmt.Println("---------- FACTS ----------")
+	for i, fact := range facts {
+		fmt.Printf("%d: %s\n", i, fact)
+	}
 }
 
 func Display() {
-    DisplayFacts(FactList)
+	DisplayFacts(FactList)
 }

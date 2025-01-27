@@ -2,18 +2,18 @@ package rules
 
 import (
 	"errors"
-	"expert/factManager"
-	"expert/v"
+	"expert-system/src/factManager"
+	"expert-system/src/v"
 	"fmt"
 )
 
 var ExpressionGroupDisplayLogs bool = false
 
 type ExpressionGroup struct {
-    Op LogicalOperator
-	LeftVariable *Variable
-	RightVariable *Variable
-	LeftExpressionGroup *ExpressionGroup
+	Op                   LogicalOperator
+	LeftVariable         *Variable
+	RightVariable        *Variable
+	LeftExpressionGroup  *ExpressionGroup
 	RightExpressionGroup *ExpressionGroup
 }
 
@@ -33,7 +33,7 @@ func (ep ExpressionGroup) solving() (v.Value, error) {
 		return v.UNDETERMINED, err
 	}
 	LogEp(fmt.Sprintf("%s : %s, %s : %s", ep.DisplaySide(LEFT), leftValue, ep.DisplaySide(RIGHT), rightValue))
-	
+
 	result, err := ep.Op.solve(leftValue, rightValue)
 	if err != nil {
 		return v.UNDETERMINED, err
@@ -155,6 +155,8 @@ func (ep ExpressionGroup) DisplaySide(side Side) string {
 }
 
 func (ep ExpressionGroup) String() string {
+	if ep.Op == NOTHING {
+		return ep.DisplaySide(LEFT)
+	}
 	return fmt.Sprintf("%s %s %s", ep.DisplaySide(LEFT), ep.Op, ep.DisplaySide(RIGHT))
 }
-
