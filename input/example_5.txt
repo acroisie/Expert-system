@@ -1,0 +1,9 @@
+A | B + C => E 
+(F | G) + H => E 
+
+=AC
+
+?E
+
+# Fail with theses cases;
+# With =AC, E should be false. 
