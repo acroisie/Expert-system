@@ -48,6 +48,13 @@ func (p *Parser) ParseRule() (*rules.Rule, error) {
     leftEG, leftVar := simplifyExpression(leftExpr)
     rightEG, rightVar := simplifyExpression(rightExpr)
 
+	if leftEG != nil {
+		leftEG = exploreEp(leftEG)
+	}
+	if rightEG != nil {
+		rightEG = exploreEp(rightEG)
+	}
+
     return &rules.Rule{
         Op:                   op,
         LeftExpressionGroup:  leftEG,
@@ -55,6 +62,27 @@ func (p *Parser) ParseRule() (*rules.Rule, error) {
         LeftVariable:         leftVar,
         RightVariable:        rightVar,
     }, nil
+}
+
+// (A AND B) AND C
+func exploreEp(eg *rules.ExpressionGroup) *rules.ExpressionGroup {
+	leftEg, leftVariable := simplifyExpression(eg.LeftExpressionGroup)
+	rightEg, rightVariable := simplifyExpression(eg.RightExpressionGroup)
+
+	if leftEg != nil {
+		leftEg = exploreEp(leftEg)
+	}
+	if rightEg != nil {
+		rightEg = exploreEp(rightEg)
+	}
+
+	return &rules.ExpressionGroup{
+		Op: eg.Op,
+		LeftExpressionGroup: leftEg,
+		RightExpressionGroup: rightEg,
+		LeftVariable: leftVariable,
+		RightVariable: rightVariable,
+	}
 }
 
 func simplifyExpression(eg *rules.ExpressionGroup) (*rules.ExpressionGroup, *rules.Variable) {
@@ -69,6 +97,14 @@ func simplifyExpression(eg *rules.ExpressionGroup) (*rules.ExpressionGroup, *rul
        eg.RightExpressionGroup == nil {
         return nil, eg.LeftVariable
     }
+
+	if eg.Op == rules.NOTHING &&
+	eg.RightVariable != nil &&
+	eg.LeftVariable == nil &&
+	eg.LeftExpressionGroup == nil &&
+	eg.RightExpressionGroup == nil {
+	 return nil, eg.RightVariable
+ }
 
     return eg, nil
 }
