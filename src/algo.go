@@ -10,9 +10,9 @@ var RuleList []rules.Rule
 
 func Algo(ruleList []rules.Rule) {
 	fmt.Println("\n\n---------- ALGO ----------")
-	factManager.FactDisplayLogs = true
-	rules.RuleDisplayLogs = true
-	rules.ExpressionGroupDisplayLogs = true
+	factManager.FactDisplayLogs = false
+	rules.RuleDisplayLogs = false
+	rules.ExpressionGroupDisplayLogs = false
 
 	rules.DisplayRules(ruleList)
 	fmt.Println("\n\n---------- INITIAL FACTS ----------")
@@ -20,10 +20,9 @@ func Algo(ruleList []rules.Rule) {
 
 	RuleList = ruleList
 	ForwardChecking()
-	return
 	fmt.Println("\n\n---------- FACTS AFTER FORWARD CHECKING ----------")
 	factManager.Display()
-	
+
 	unknowLetters := factManager.GetUnknowLetters()
 	if len(unknowLetters) > 0 {
 		result, err := BackTracking()

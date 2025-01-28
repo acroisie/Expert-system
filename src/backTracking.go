@@ -91,6 +91,52 @@ func factPossibilitiesFusion(factPossibilities [][]factManager.Fact) ([]factMana
     return mergedFacts, nil
 }
 
+func factPossibilitiesFusion3(factPossibilities [][]factManager.Fact) ([]factManager.Fact, *v.Error) {
+    fmt.Println("FactPossibilitiesFusion3")
+
+    mergedFacts := make([]factManager.Fact, len(factManager.FactList))
+    copy(mergedFacts, factManager.FactList)
+
+    if len(factPossibilities) <= 0 {
+        return mergedFacts, &v.Error{Type: v.SOLVING, Message: "No fact possibilities to merge"}
+    }
+
+    for i, fact := range mergedFacts {
+        letter := fact.Letter
+
+        allValues := make([]v.Value, 0, len(factPossibilities))
+        for _, possibility := range factPossibilities {
+            for _, factInPossibility := range possibility {
+                if factInPossibility.Letter == letter {
+                    allValues = append(allValues, factInPossibility.Value)
+                    break
+                }
+            }
+        }
+
+        alwaysFalse := true
+        alwaysTrue := true
+        for _, val := range allValues {
+            if val != v.FALSE {
+                alwaysFalse = false
+            }
+            if val != v.TRUE {
+                alwaysTrue = false
+            }
+        }
+
+        if alwaysFalse {
+            mergedFacts[i].Value = v.FALSE
+        } else if alwaysTrue {
+            mergedFacts[i].Value = v.TRUE
+        } else {
+			mergedFacts[i].Value = v.UNDETERMINED
+        }
+    }
+
+    return mergedFacts, nil
+}
+
 func countTrueValues(factList []factManager.Fact) int {
 	count := 0
 	for _, fact := range factList {
@@ -233,9 +279,9 @@ func BackTracking() (*[]factManager.Fact, *v.Error) {
 		unknowLetters := factManager.GetUnknowLetters()
 
 		factPossibilities, _ := getFactPossibilities(unknowLetters)
-		for e, possibility := range factPossibilities {
-			fmt.Printf("Possibility %d:\n", e)
-			factManager.DisplayFacts(possibility)
+		for _, possibility := range factPossibilities {
+			// fmt.Printf("Possibility %d:\n", e)
+			// factManager.DisplayFacts(possibility)
 			factPossibilitiesTotal = append(factPossibilitiesTotal, possibility)
 		}
 	
@@ -260,8 +306,9 @@ func BackTracking() (*[]factManager.Fact, *v.Error) {
 		fmt.Printf("\n---------- FACTS %d ----------\n", i)
 		factManager.DisplayFacts(factList)
 	}
-	factPossibilitiesTotalTmp := getSmallestPossibilities(factPossibilitiesTotal)
-	fact, err := factPossibilitiesFusion2(factPossibilitiesTotalTmp)
+	// factPossibilitiesTotalTmp := getSmallestPossibilities(factPossibilitiesTotal)
+	// fact, err := factPossibilitiesFusion2(factPossibilitiesTotalTmp)
+	fact, err := factPossibilitiesFusion3(factPossibilitiesTotal)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
 	} else {

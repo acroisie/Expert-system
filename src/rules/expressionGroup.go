@@ -17,11 +17,11 @@ type ExpressionGroup struct {
 }
 
 func (ep ExpressionGroup) solving() (v.Value, *v.Error) {
-	LogEp(fmt.Sprintf("ExpressionGroup solving : %s", ep))
-	LogEp(fmt.Sprintf("LeftVariable : %s", ep.LeftVariable))
-	LogEp(fmt.Sprintf("RightVariable : %s", ep.RightVariable))
-	LogEp(fmt.Sprintf("LeftExpressionGroup : %s", ep.LeftExpressionGroup))
-	LogEp(fmt.Sprintf("RightExpressionGroup : %s", ep.RightExpressionGroup))
+	// LogEp(fmt.Sprintf("ExpressionGroup solving : %s", ep))
+	// LogEp(fmt.Sprintf("LeftVariable : %s", ep.LeftVariable))
+	// LogEp(fmt.Sprintf("RightVariable : %s", ep.RightVariable))
+	// LogEp(fmt.Sprintf("LeftExpressionGroup : %s", ep.LeftExpressionGroup))
+	// LogEp(fmt.Sprintf("RightExpressionGroup : %s", ep.RightExpressionGroup))
 
 	if !ep.Op.isValid() {
 		return v.UNDETERMINED, &v.Error{Type: v.SOLVING, Message: fmt.Sprintf("Invalid operator : %s", ep.Op)}

@@ -30,3 +30,4 @@ func main() {
     rules.DisplayRules(problem.Rules)
     Algo(problem.Rules)
 }
+
