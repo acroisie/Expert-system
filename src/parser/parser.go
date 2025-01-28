@@ -165,7 +165,7 @@ func (p *Parser) parseTerm() (*rules.ExpressionGroup, error) {
 }
 
 func (p *Parser) parseFactor() (*rules.ExpressionGroup, error) {
-	if p.currTok.Type == TKN_NOT {
+	if p.currTok.Type == TKN_NOT { 
 		p.nextToken()
 
 		expr, err := p.parseFactor()
