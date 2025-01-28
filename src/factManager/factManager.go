@@ -146,7 +146,6 @@ func LogFact(msg string) {
 }
 
 func DisplayFacts(facts []Fact) {
-	fmt.Println("---------- FACTS ----------")
 	for i, fact := range facts {
 		fmt.Printf("%d: %s\n", i, fact)
 	}

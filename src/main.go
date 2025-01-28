@@ -5,6 +5,7 @@ import (
     "expert-system/src/models"
     "expert-system/src/factManager"
     "expert-system/src/rules"
+    "expert-system/src/algo"
     "fmt"
     "os"
 )
@@ -28,6 +29,6 @@ func main() {
     factManager.FactList = problem.Facts
     factManager.Display()
     rules.DisplayRules(problem.Rules)
-    Algo(problem.Rules)
+    algo.Algo(problem.Rules)
 }
 
