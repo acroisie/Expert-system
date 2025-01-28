@@ -45,13 +45,32 @@ func (p *Parser) ParseRule() (*rules.Rule, error) {
 		return nil, err
 	}
 
-	r := &rules.Rule{
-		Op:                   op,
-		LeftExpressionGroup:  leftExpr,
-		RightExpressionGroup: rightExpr,
-	}
+    leftEG, leftVar := simplifyExpression(leftExpr)
+    rightEG, rightVar := simplifyExpression(rightExpr)
 
-	return r, nil
+    return &rules.Rule{
+        Op:                   op,
+        LeftExpressionGroup:  leftEG,
+        RightExpressionGroup: rightEG,
+        LeftVariable:         leftVar,
+        RightVariable:        rightVar,
+    }, nil
+}
+
+func simplifyExpression(eg *rules.ExpressionGroup) (*rules.ExpressionGroup, *rules.Variable) {
+    if eg == nil {
+        return nil, nil
+    }
+
+    if eg.Op == rules.NOTHING &&
+       eg.LeftVariable != nil &&
+       eg.RightVariable == nil &&
+       eg.LeftExpressionGroup == nil &&
+       eg.RightExpressionGroup == nil {
+        return nil, eg.LeftVariable
+    }
+
+    return eg, nil
 }
 
 func (p *Parser) parseExpression() (*rules.ExpressionGroup, error) {

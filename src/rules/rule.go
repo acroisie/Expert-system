@@ -25,7 +25,7 @@ type Rule struct {
 }
 
 func (rule Rule) Solving() (v.Value, v.Value, *v.Error) {
-
+	LogRule(fmt.Sprintf("%s solving", rule))
 	expressionGroupTmp := ExpressionGroup{
 		Op:                   NOTHING,
 		LeftVariable:         rule.LeftVariable,
@@ -33,7 +33,11 @@ func (rule Rule) Solving() (v.Value, v.Value, *v.Error) {
 		LeftExpressionGroup:  rule.LeftExpressionGroup,
 		RightExpressionGroup: rule.RightExpressionGroup,
 	}
-
+	LogRule(fmt.Sprintf("ExpressionGroupTmp: %s", expressionGroupTmp))
+	LogRule(fmt.Sprintf("expressionGroupTmp.leftVariable: %s", expressionGroupTmp.LeftVariable))
+	LogRule(fmt.Sprintf("expressionGroupTmp.rightVariable: %s", expressionGroupTmp.RightVariable))
+	LogRule(fmt.Sprintf("expressionGroupTmp.leftExpressionGroup: %s", expressionGroupTmp.LeftExpressionGroup))
+	LogRule(fmt.Sprintf("expressionGroupTmp.rightExpressionGroup: %s", expressionGroupTmp.RightExpressionGroup))
 	leftValue, err := solvingSide(expressionGroupTmp.LeftVariable, expressionGroupTmp.LeftExpressionGroup)
 	if err != nil {
 		return v.UNDETERMINED, v.UNDETERMINED, err

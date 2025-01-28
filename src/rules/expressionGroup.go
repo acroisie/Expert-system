@@ -43,6 +43,7 @@ func (ep ExpressionGroup) solving() (v.Value, *v.Error) {
 }
 
 func solvingSide(variable *Variable, expressionGroup *ExpressionGroup) (v.Value, *v.Error) {
+	LogRule(fmt.Sprintf("Solving side : %s, %s", variable, expressionGroup))
 	if variable != nil {
 		fact, err := factManager.GetFactReferenceByLetter(variable.Letter)
 		if err != nil {
