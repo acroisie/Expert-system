@@ -1,0 +1,12 @@
+(A | B) + (!C + D) => E  
+E + (F | G) => H  
+(A ^ B) | (!D + G) => F  
+(C + D) => !A  
+(A | E) + (!F ^ G) => I  
+(H + !I) => J  
+(J | K) + D => L  
+L + (!B | F) => M  
+(M + C) => !N  
+
+=ABD  
+?ABCDEFGHIJKLMN

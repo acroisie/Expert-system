@@ -2,5 +2,6 @@ B + C => A
 D | E => B 
 B => C 
 
+=B
 
-?A
+?ABCDE
