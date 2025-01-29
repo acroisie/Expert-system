@@ -1,7 +1,0 @@
-B + !C => A 
-
-=B
-?A
-
-# Fail with theses cases;
-# With =B, A should be true. 

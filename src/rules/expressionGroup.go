@@ -155,6 +155,25 @@ func (ep ExpressionGroup) getFactOccurences(factListOccurence *map[rune]int) {
 	}
 }
 
+func (ep ExpressionGroup) getLetters() map[rune]struct{} {
+	letters := make(map[rune]struct{})
+	if ep.LeftVariable != nil {
+		letters[ep.LeftVariable.Letter] = struct{}{}
+	} else {
+		for letter := range ep.LeftExpressionGroup.getLetters() {
+			letters[letter] = struct{}{}
+		}
+	}
+	if ep.RightVariable != nil {
+		letters[ep.RightVariable.Letter] = struct{}{}
+	} else {
+		for letter := range ep.RightExpressionGroup.getLetters() {
+			letters[letter] = struct{}{}
+		}
+	}
+	return letters
+}
+
 // DISPLAY
 
 func LogEp(msg string) {

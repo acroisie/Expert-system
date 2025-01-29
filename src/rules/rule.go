@@ -164,6 +164,45 @@ func SortFactList(ruleList []Rule, factList []factManager.Fact, lap int) []factM
 	return newFactList
 }
 
+func SetLeftOnlyFacts(ruleList []Rule) []rune {
+	leftFacts := make(map[rune]struct{})
+	rightFacts := make(map[rune]struct{})
+	for _, rule := range ruleList {
+		if rule.LeftVariable != nil {
+			leftFacts[rule.LeftVariable.Letter] = struct{}{}
+		} else {
+			for letter := range rule.LeftExpressionGroup.getLetters() {
+				leftFacts[letter] = struct{}{}
+			}
+		}
+		if rule.RightVariable != nil {
+			rightFacts[rule.RightVariable.Letter] = struct{}{}
+		} else {
+			for letter := range rule.RightExpressionGroup.getLetters() {
+				rightFacts[letter] = struct{}{}
+			}
+		}
+	}
+	leftOnlyFacts := make(map[rune]struct{})
+	for leftLetter := range leftFacts {
+		found := false
+		for rightLetter := range rightFacts {
+			if leftLetter == rightLetter {
+				found = true
+				break
+			}
+		}
+		if !found {
+			leftOnlyFacts[leftLetter] = struct{}{}
+		}
+	}
+	lettersToReturn := []rune{}
+	for letter := range leftOnlyFacts {
+		lettersToReturn = append(lettersToReturn, letter)
+	}
+	return lettersToReturn
+}
+
 // DISPLAY
 
 func LogRule(msg string) {

@@ -1,0 +1,8 @@
+A + B => C  
+C => D  
+D + E => F  
+F => !A  
+B => E  
+
+=AB  
+?ABCDEF

@@ -2,8 +2,8 @@ B + C => A
 D ^ E => B 
 B => C
 
-=DE
-?A
+=D
+?ABCDE
 
 # Fail with theses cases;
 # With =D, A should be true.
