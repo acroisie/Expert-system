@@ -47,6 +47,11 @@ func Algo(ruleList []rules.Rule) (bool, []string) {
 	}
 	rules.ReasoningLogs = []string{}
 
+	onlyLeftError := SetFalseOnlyLeftFact()
+	if onlyLeftError == nil {
+		return true
+	}
+
 	unknowLetters := factManager.GetUnknowLetters()
 	if len(unknowLetters) > 0 {
 		BTError := backTracking()
@@ -78,4 +83,45 @@ func Algo(ruleList []rules.Rule) (bool, []string) {
 	}
 
 	return true, logs
+}
+
+func SetFalseOnlyLeftFact() *v.Error {
+	onlyLeftLetters := rules.SetLeftOnlyFacts(RuleList)
+	if AlgoDisplayLogs {
+		fmt.Println("\n\n---------- ONLY LEFT FACTS ----------")
+		stringTmp := ""
+		for _, letter := range onlyLeftLetters {
+			stringTmp += fmt.Sprintf("%c ", letter)
+		}
+		fmt.Println(stringTmp)
+	}
+	for _, letter := range onlyLeftLetters {
+		err := factManager.SetFactValueByLetter(letter, v.FALSE, false)
+		if err != nil && AlgoDisplayLogs {
+			fmt.Printf("%s\n", err.Message)
+		}
+	}
+	ruleListSave := make([]rules.Rule, len(RuleList))
+	copy(ruleListSave, RuleList)
+
+	FCError := forwardChecking()
+	if FCError != nil {
+		if AlgoDisplayLogs {
+			fmt.Printf("\n\n---------- INIT ONLY LEFT FACTS TO FALSE - ERROR: %s ----------\n", FCError.Message)
+		}
+		RuleList = ruleListSave
+		return FCError
+	}
+	unknownLetters := factManager.GetUnknowLetters()
+	RuleList = ruleListSave
+	if len(unknownLetters) > 0 {
+		if AlgoDisplayLogs {
+			fmt.Println("\n\n---------- SOLVED AFTER INIT ONLY LEFT FACTS TO FALSE - FAILURE ----------")
+		}
+		return &v.Error{Type: v.FACT_NOT_FOUND, Message: "Can't solve after init only left facts to false"}
+	}
+	if AlgoDisplayLogs {
+		fmt.Println("\n\n---------- SOLVED AFTER INIT ONLY LEFT FACTS TO FALSE - SUCCESS ----------")
+	}
+	return nil
 }
