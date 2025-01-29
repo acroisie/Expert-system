@@ -11,8 +11,8 @@ var RuleList []rules.Rule
 var AlgoDisplayLogs bool = false
 
 func Algo(ruleList []rules.Rule) bool {
-	AlgoDisplayLogs = true
-	factManager.FactDisplayLogs = true
+	AlgoDisplayLogs = false
+	factManager.FactDisplayLogs = false
 	rules.RuleDisplayLogs = false
 	rules.ExpressionGroupDisplayLogs = false
 
