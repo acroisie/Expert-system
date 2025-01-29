@@ -44,38 +44,69 @@ func (p *Parser) ParseRule() (*rules.Rule, error) {
 		return nil, err
 	}
 
-	leftExpr = p.cleanExpressionGroup(leftExpr)
-	rightExpr = p.cleanExpressionGroup(rightExpr)
+    leftExpr, leftVar := simplifyExpression(leftExpr)
+    rightExpr, rightVar := simplifyExpression(rightExpr)
 
-	return &rules.Rule{
-		Op:                   op,
-		LeftExpressionGroup:  leftExpr,
-		RightExpressionGroup: rightExpr,
-	}, nil
+	if leftExpr != nil {
+		leftExpr = exploreEp(leftExpr)
+	}
+	if rightExpr != nil {
+		rightExpr = exploreEp(rightExpr)
+	}
+
+    return &rules.Rule{
+        Op:                   op,
+        LeftExpressionGroup:  leftExpr,
+        RightExpressionGroup: rightExpr,
+        LeftVariable:         leftVar,
+        RightVariable:        rightVar,
+    }, nil
 }
 
-func (p *Parser) cleanExpressionGroup(eg *rules.ExpressionGroup) *rules.ExpressionGroup {
-	if eg == nil {
-		return nil
+func exploreEp(eg *rules.ExpressionGroup) *rules.ExpressionGroup {
+	leftEg, leftVariable := simplifyExpression(eg.LeftExpressionGroup)
+	rightEg, rightVariable := simplifyExpression(eg.RightExpressionGroup)
+
+	if leftEg != nil {
+		leftEg = exploreEp(leftEg)
+	}
+	if rightEg != nil {
+		rightEg = exploreEp(rightEg)
 	}
 
-	if eg.Op == rules.NOTHING && eg.LeftVariable != nil && eg.RightVariable == nil &&
-		eg.LeftExpressionGroup == nil && eg.RightExpressionGroup == nil {
-		return &rules.ExpressionGroup{
-			Op:           rules.NOTHING,
-			LeftVariable: eg.LeftVariable,
-		}
+	return &rules.ExpressionGroup{
+		Op: eg.Op,
+		LeftExpressionGroup: leftEg,
+		RightExpressionGroup: rightEg,
+		LeftVariable: leftVariable,
+		RightVariable: rightVariable,
 	}
-
-	if eg.LeftExpressionGroup != nil {
-		eg.LeftExpressionGroup = p.cleanExpressionGroup(eg.LeftExpressionGroup)
-	}
-	if eg.RightExpressionGroup != nil {
-		eg.RightExpressionGroup = p.cleanExpressionGroup(eg.RightExpressionGroup)
-	}
-
-	return eg
 }
+
+func simplifyExpression(eg *rules.ExpressionGroup) (*rules.ExpressionGroup, *rules.Variable) {
+    if eg == nil {
+        return nil, nil
+    }
+
+    if eg.Op == rules.NOTHING &&
+       eg.LeftVariable != nil &&
+       eg.RightVariable == nil &&
+       eg.LeftExpressionGroup == nil &&
+       eg.RightExpressionGroup == nil {
+        return nil, eg.LeftVariable
+    }
+
+	if eg.Op == rules.NOTHING &&
+	eg.RightVariable != nil &&
+	eg.LeftVariable == nil &&
+	eg.LeftExpressionGroup == nil &&
+	eg.RightExpressionGroup == nil {
+	 return nil, eg.RightVariable
+ }
+
+    return eg, nil
+}
+
 
 func (p *Parser) parseExpression() (*rules.ExpressionGroup, error) {
 	leftExpr, err := p.parseTerm()
