@@ -221,3 +221,13 @@
 // 		return nil, &v.Error{Type: v.SOLVING, Message: "Multiple possibilities"}
 // 	}
 // }
+
+// func SliceALetter(factList []Fact, letter rune) []Fact {
+//     var newFactList []Fact
+//     for _, fact := range factList {
+//         if fact.Letter != letter {
+//             newFactList = append(newFactList, fact)
+//         }
+//     }
+//     return newFactList
+// }

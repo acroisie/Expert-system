@@ -3,7 +3,7 @@ A | B + C => E
 
 =AC
 
-?E
+?ABCEFGH
 
 # Fail with theses cases;
 # With =AC, E should be false. 
