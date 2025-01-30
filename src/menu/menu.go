@@ -20,6 +20,8 @@ type MainModel struct {
 	choices  []string
 	cursor   int
 	problem  *models.Problem
+
+	resolutionLog string
 }
 
 func InitialModel(problem *models.Problem) MainModel {
@@ -59,14 +61,18 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter", " ":
 			switch m.choices[m.cursor] {
 			case "Run Resolution":
-				// Call your resolution algorithm here
+				m.resolutionLog = ""
+
+				// 2) On lance l’algo
+				factManager.FactList = m.problem.Facts
 				algo.Algo(m.problem.Rules)
+			
 
 				// After it finishes, just show the final facts or return
 				// to the main menu, depending on your preference.
 				// For simplicity, let's just print them and go back to menu:
-				fmt.Println("\nResolution complete. Final facts are:")
-				factManager.DisplayFacts(m.problem.Facts)
+				m.resolutionLog += "\nResolution complete. Final facts are:\n"
+				m.resolutionLog += formatFacts(m.problem.Facts) 
 
 				return m, nil // stay in main menu
 
@@ -87,20 +93,24 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MainModel) View() string {
-	s := "Expert System Menu\n\n"
+    s := "Expert System Menu\n\n"
 
-	for i, choice := range m.choices {
-		cursor := " "
-		if m.cursor == i {
-			cursor = ">"
-		}
-		s += fmt.Sprintf("%s %s\n", cursor, choice)
-	}
+    for i, choice := range m.choices {
+        cursor := " "
+        if m.cursor == i {
+            cursor = ">"
+        }
+        s += fmt.Sprintf("%s %s\n", cursor, choice)
+    }
 
-	s += "\nPress q to quit.\n"
+    s += "\nPress q to quit.\n"
 
-	// Optional styling with lipgloss:
-	return lipgloss.NewStyle().Padding(1, 2).Render(s)
+    // On ajoute m.resolutionLog à la suite
+    if m.resolutionLog != "" {
+        s += "\n" + m.resolutionLog + "\n"
+    }
+  
+    return lipgloss.NewStyle().Padding(1, 2).Render(s)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -190,6 +200,15 @@ func (m FactModel) View() string {
 	s += "\nPress ENTER to confirm changes, ESC or Q to go back.\n"
 	return lipgloss.NewStyle().Padding(1, 2).Render(s)
 }
+
+func formatFacts(facts []factManager.Fact) string {
+    result := ""
+    for i, f := range facts {
+        result += fmt.Sprintf("%d: %c = %s\n", i, f.Letter, f.Value)
+    }
+    return result
+}
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ASTModel
