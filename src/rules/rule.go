@@ -8,6 +8,8 @@ import (
 )
 
 var RuleDisplayLogs bool = false
+var ReasoningDisplayLogs bool = false
+var ReasoningLogs []string = []string{}
 
 type Side int
 
@@ -33,11 +35,7 @@ func (rule Rule) Solving() (v.Value, v.Value, *v.Error) {
 		LeftExpressionGroup:  rule.LeftExpressionGroup,
 		RightExpressionGroup: rule.RightExpressionGroup,
 	}
-	// LogRule(fmt.Sprintf("ExpressionGroupTmp: %s", expressionGroupTmp))
-	// LogRule(fmt.Sprintf("expressionGroupTmp.leftVariable: %s", expressionGroupTmp.LeftVariable))
-	// LogRule(fmt.Sprintf("expressionGroupTmp.rightVariable: %s", expressionGroupTmp.RightVariable))
-	// LogRule(fmt.Sprintf("expressionGroupTmp.leftExpressionGroup: %s", expressionGroupTmp.LeftExpressionGroup))
-	// LogRule(fmt.Sprintf("expressionGroupTmp.rightExpressionGroup: %s", expressionGroupTmp.RightExpressionGroup))
+
 	leftValue, err := solvingSide(expressionGroupTmp.LeftVariable, expressionGroupTmp.LeftExpressionGroup)
 	if err != nil {
 		return v.UNDETERMINED, v.UNDETERMINED, err
@@ -54,39 +52,26 @@ func (rule Rule) Solving() (v.Value, v.Value, *v.Error) {
 	return leftValue, rightValue, nil
 }
 
-// func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
-// 	LogRule(fmt.Sprintf("%s deduction, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
-// 	if leftValue.Real() && rightValue == v.UNKNOWN {
-// 		if rule.RightVariable != nil {
-//             if rule.RightVariable.Not {
-//                 leftValue = leftValue.NOT()
-//             }
-// 			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue, false)
-// 		} else {
-// 			return rule.RightExpressionGroup.deduction(leftValue)
-// 		}
-// 	} else if leftValue == v.UNKNOWN && rightValue.Real() {
-// 		if rule.LeftVariable != nil {
-//             if rule.LeftVariable.Not {
-//                 rightValue = rightValue.NOT()
-//             }
-// 			return factManager.SetFactValueByLetter(rule.LeftVariable.Letter, rightValue, false)
-// 		} else {
-// 			return rule.LeftExpressionGroup.deduction(rightValue)
-// 		}
-// 	}
-// 	return nil
-// }
-
 func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
 	LogRule(fmt.Sprintf("%s deduction, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
 	if leftValue == v.TRUE && rightValue == v.UNKNOWN {
 		if rule.RightVariable != nil {
+			if rule.LeftVariable != nil {
+				LogReasoning(fmt.Sprintf("%s, %s = %s, so %s = %s\n", rule, rule.LeftVariable, leftValue, rule.RightVariable, leftValue))
+			} else {
+				LogReasoning(fmt.Sprintf("%s, %s = %s, so %s = %s\n", rule, rule.LeftExpressionGroup, leftValue, rule.RightVariable, leftValue))
+			}
             if rule.RightVariable.Not {
+				LogReasoning(fmt.Sprintf("%s = %s, so %s = %s\n", rule.RightVariable, leftValue, rule.RightVariable.Letter, leftValue.NOT()))
                 leftValue = leftValue.NOT()
             }
 			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue, false)
 		} else {
+			if rule.LeftVariable != nil {
+				LogReasoning(fmt.Sprintf("%s, %s = %s, so %s = %s\n", rule, rule.LeftVariable, leftValue, rule.RightExpressionGroup, leftValue))
+			} else {
+				LogReasoning(fmt.Sprintf("%s, %s = %s, so %s = %s\n", rule, rule.LeftExpressionGroup, leftValue, rule.RightExpressionGroup, leftValue))
+			}
 			return rule.RightExpressionGroup.deduction(leftValue)
 		}
 	} else if leftValue == v.TRUE && rightValue == v.FALSE {
@@ -153,7 +138,6 @@ func SortFactList(ruleList []Rule, factList []factManager.Fact, lap int) []factM
 	})
 	newFactList := make([]factManager.Fact, len(factList))
 	copy(newFactList, factList)
-	// ftm.Printf("Sort with lap %d\n", lap)
 	for lap > 0 {
 		newFactListTmp := []factManager.Fact{}
 		newFactListTmp = append(newFactListTmp, newFactList[1:]...)
@@ -164,21 +148,21 @@ func SortFactList(ruleList []Rule, factList []factManager.Fact, lap int) []factM
 	return newFactList
 }
 
-func SetLeftOnlyFacts(ruleList []Rule) []rune {
+func GetLeftOnlyFacts(ruleList []Rule) []rune {
 	leftFacts := make(map[rune]struct{})
 	rightFacts := make(map[rune]struct{})
 	for _, rule := range ruleList {
 		if rule.LeftVariable != nil {
 			leftFacts[rule.LeftVariable.Letter] = struct{}{}
 		} else {
-			for letter := range rule.LeftExpressionGroup.getLetters() {
+			for letter := range rule.LeftExpressionGroup.GetLetters() {
 				leftFacts[letter] = struct{}{}
 			}
 		}
 		if rule.RightVariable != nil {
 			rightFacts[rule.RightVariable.Letter] = struct{}{}
 		} else {
-			for letter := range rule.RightExpressionGroup.getLetters() {
+			for letter := range rule.RightExpressionGroup.GetLetters() {
 				rightFacts[letter] = struct{}{}
 			}
 		}
@@ -235,6 +219,14 @@ func DisplayRules(rules []Rule) {
 	fmt.Println("---------- RULES ----------")
 	for i, rule := range rules {
 		fmt.Printf("%d: %s\n", i, rule.String())
+	}
+}
+
+func LogReasoning(msg string) {
+	if ReasoningDisplayLogs {
+		if len(ReasoningLogs) <= 0 || ReasoningLogs[len(ReasoningLogs) - 1] != msg {
+			ReasoningLogs = append(ReasoningLogs, msg)
+		}
 	}
 }
 

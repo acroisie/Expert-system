@@ -39,6 +39,8 @@ func ReadFactsFromFile(filename string) ([]factManager.Fact, error) {
 			value = v.TRUE
 		} else if valueStr == "FALSE" {
 			value = v.FALSE
+		} else if valueStr == "UNDETERMINED" {
+			value = v.UNDETERMINED
 		} else {
 			return nil, fmt.Errorf("invalid value in line: %s", line)
 		}

@@ -1,0 +1,7 @@
+(A + B) | C => D
+D + E => F
+F | G => H
+H + I => J
+
+=A
+?ABCDEFGHIJ
