@@ -97,11 +97,14 @@ func (ep ExpressionGroup) deduction(result v.Value) *v.Error {
 
 func sideDeduction(variable *Variable, expressionGroup *ExpressionGroup, newValue v.Value) *v.Error {
 	if variable != nil {
+		LogReasoning(fmt.Sprintf("so %s = %s\n", variable, newValue))
 		if variable.Not {
+			LogReasoning(fmt.Sprintf("%s = %s, so %s = %s\n", variable, newValue, variable.Letter, newValue.NOT()))
 			newValue = newValue.NOT()
 		}
 		return factManager.SetFactValueByLetter(variable.Letter, newValue, false)
 	} else {
+		LogReasoning(fmt.Sprintf("so %s = %s\n", expressionGroup, newValue))
 		return expressionGroup.deduction(newValue)
 	}
 }
@@ -116,6 +119,7 @@ func (ep ExpressionGroup) findOneUnknown(res v.Value, know v.Value, side Side) *
 		newValue = res.FindUnknown_XOR(know)
 	}
 
+	LogReasoning(fmt.Sprintf("%s = %s, ", ep, res))
 	if side == LEFT {
 		return sideDeduction(ep.LeftVariable, ep.LeftExpressionGroup, newValue)
 	} else {
@@ -135,8 +139,10 @@ func (ep ExpressionGroup) findTwoUnknow(res v.Value) *v.Error {
 	}
 
 	if newLeftValue != v.UNKNOWN {
+		LogReasoning(fmt.Sprintf("%s = %s, ", ep, res))
 		return sideDeduction(ep.LeftVariable, ep.LeftExpressionGroup, newLeftValue)
 	} else if newRightValue != v.UNKNOWN {
+		LogReasoning(fmt.Sprintf("%s = %s, ", ep, res))
 		return sideDeduction(ep.RightVariable, ep.RightExpressionGroup, newRightValue)
 	}
 	return nil
@@ -155,19 +161,19 @@ func (ep ExpressionGroup) getFactOccurences(factListOccurence *map[rune]int) {
 	}
 }
 
-func (ep ExpressionGroup) getLetters() map[rune]struct{} {
+func (ep ExpressionGroup) GetLetters() map[rune]struct{} {
 	letters := make(map[rune]struct{})
 	if ep.LeftVariable != nil {
 		letters[ep.LeftVariable.Letter] = struct{}{}
 	} else {
-		for letter := range ep.LeftExpressionGroup.getLetters() {
+		for letter := range ep.LeftExpressionGroup.GetLetters() {
 			letters[letter] = struct{}{}
 		}
 	}
 	if ep.RightVariable != nil {
 		letters[ep.RightVariable.Letter] = struct{}{}
 	} else {
-		for letter := range ep.RightExpressionGroup.getLetters() {
+		for letter := range ep.RightExpressionGroup.GetLetters() {
 			letters[letter] = struct{}{}
 		}
 	}

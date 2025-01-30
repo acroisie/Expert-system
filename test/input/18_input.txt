@@ -1,0 +1,7 @@
+F + B => Z
+C + D => F
+A     => D
+
+=EBC             
+
+?ABCDEFZ
