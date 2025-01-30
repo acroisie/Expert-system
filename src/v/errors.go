@@ -11,6 +11,7 @@ const (
 	FACT_NOT_FOUND ErrorType = "FACT_NOT_FOUND"
 	SOLVING ErrorType = "SOLVING"
 	MAX_DEPTH ErrorType = "MAX_DEPTH"
+	UNKNOWN_PRESENCE ErrorType = "UNKNOWN_PRESENCE"
 )
 
 type Error struct {

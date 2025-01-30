@@ -5,6 +5,7 @@ import (
     "expert-system/src/models"
     "expert-system/src/factManager"
     "expert-system/src/algo"
+    "expert-system/src/rules"
     "fmt"
     "os"
 )
@@ -36,8 +37,16 @@ func main() {
         // rules.DisplayRules(problem.Rules)
     }
 
-    result := algo.Algo(problem.Rules)
+    formattedRules := rules.RulesConditionalOperatorFormatter(problem.Rules)
+    result, reasoningLogs := algo.Algo(formattedRules)
     if result {
+        if false {
+            fmt.Printf("\n\nREASONING LOGS:\n")
+            for _, log := range reasoningLogs {
+                fmt.Printf(log)
+            }
+        }
+        
         factManager.SortFactListByAlphabet(factManager.FactList)
         if displayLogs {
             fmt.Printf("\n\nFACT LIST RESULT:\n")

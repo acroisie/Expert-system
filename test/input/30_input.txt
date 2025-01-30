@@ -1,0 +1,13 @@
+(A + !B) | (C ^ D) => E  
+(E + F) => G  
+(G | H) + (!I + J) => K  
+(A | B) + (C | L) => M  
+(M + N) => O  
+(O | P) + (!Q + R) => S  
+(S + T) => !U  
+(V + W) => X  
+(X | Y) + (!Z + A) => B  
+(D + E) => !C  
+
+=AD  
+?ABCDEFGHIJKLMNOPQRSTUVWX

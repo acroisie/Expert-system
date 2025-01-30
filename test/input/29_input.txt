@@ -1,0 +1,7 @@
+(A | B) + C => D
+(D + E) | (F ^ G) => H
+H => I + J
+J | K => L
+
+=AC
+?ABCDEFGHIJKL
