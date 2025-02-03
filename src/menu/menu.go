@@ -23,17 +23,17 @@ type MainModel struct {
 	ResolutionError string
 }
 
-func InitMainModel() MainModel {
-	return MainModel{
-		choices: []string{
-			"Run Resolution",
-			"Modify Facts",
-			"Show Rules AST",
-			"Quit",
-		},
-		cursor:  0,
-		problem: nil,
-	}
+func InitMainModel(problem *models.Problem) MainModel {
+    return MainModel{
+        choices: []string{
+            "Run Resolution",
+            "Modify Facts",
+            "Show Rules AST",
+            "Quit",
+        },
+        cursor:   0,
+        problem:  problem,
+    }
 }
 
 func (m MainModel) Init() tea.Cmd {
@@ -63,7 +63,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				switch m.choices[m.cursor] {
 					case "Run Resolution":
 						factManager.FactList = m.problem.Facts
-						formattedRules := rules.RulesConditionalOperatorFormatter(m.problem.Rules)
+						formatedRules := rules.RulesConditionalOperatorFormatter(m.problem.Rules)
 
 						success, logs := algo.Algo(formatedRules)
 
@@ -95,46 +95,50 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	func (m MainModel) View() string {
 		style := lipgloss.NewStyle().Padding(1, 2)
-		var s string
+		var str string
 
 		if m.showResolution {
-			s += "Resolution done: "
+			str += "Resolution done: "
 			if m.resolutionDone {
-				s += "Success\n"
+				str += "Success\n"
 			} else {
-				s += "Failure\n"
+				str += "Failure\n"
 				if m.ResolutionError != "" {
-					s += "Error: " + m.ResolutionError + "\n\n"
+					str += "Error: " + m.ResolutionError + "\n\n"
 				}
 			}
 
-			s += "Reasoning logs:\n"
+			str += "Reasoning logs:\n"
 			if len(m.reasoningLogs) == 0 {
-				s += "No logs\n"
+				str += "No logs\n"
 			} else {
 				for _, log := range m.reasoningLogs {
-					s += log + "\n"
+					str += log + "\n"
 				}
 			}
 
-			s += "Facts:\n"
+			str += "Facts:\n"
 			factManager.SortFactListByAlphabet(factManager.FactList)
-			s += factsToString(factManager.FactList) + "\n"
+			str += factsToString(factManager.FactList) + "\n"
 
-			return style.Render(s)
+			str += "Press b to go back.\n"
+			str += "Press q to quit.\n"
+
+			return style.Render(str)
 		}
 	
+		str += "Expert System\n\n"
 		for i, choice := range m.choices {
 			cursor := " "
 			if m.cursor == i {
 				cursor = ">"
 			}
-			s += fmt.Sprintf("%s %s\n", cursor, choice)
+			str += fmt.Sprintf("%s %s\n", cursor, choice)
 		}
 	
-		s += "\nPress q to quit.\n"
+		str += "\nPress q to quit.\n"
 
-		return lipgloss.NewStyle().Padding(1, 2).Render(s) // Make something wiht colors, rounded corners, etc.
+		return style.Render(str)
 	}
 	
 	func factsToString(facts []factManager.Fact) string {
