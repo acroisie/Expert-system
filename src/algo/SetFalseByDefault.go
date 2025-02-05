@@ -1,10 +1,10 @@
 package algo
 
 import (
-    "fmt"
-    "expert-system/src/rules"
-    "expert-system/src/factManager"
+	"expert-system/src/factManager"
+	"expert-system/src/rules"
 	"expert-system/src/v"
+	"fmt"
 )
 
 func SetFalseByDefault() *v.Error {
@@ -47,7 +47,7 @@ func SetFalseInactiveFacts() (bool, *v.Error) {
 			if rule.RightVariable != nil {
 				activeLetters[rule.RightVariable.Letter] = true
 			} else if rule.RightExpressionGroup != nil {
-				rightLetters:= rule.RightExpressionGroup.GetLetters()
+				rightLetters := rule.RightExpressionGroup.GetLetters()
 				for letter := range rightLetters {
 					activeLetters[letter] = true
 				}

@@ -61,10 +61,10 @@ func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
 			} else {
 				LogReasoning(fmt.Sprintf("%s, %s = %s, so %s = %s\n", rule, rule.LeftExpressionGroup, leftValue, rule.RightVariable, leftValue))
 			}
-            if rule.RightVariable.Not {
+			if rule.RightVariable.Not {
 				LogReasoning(fmt.Sprintf("%s = %s, so %s = %s\n", rule.RightVariable, leftValue, rule.RightVariable.Letter, leftValue.NOT()))
-                leftValue = leftValue.NOT()
-            }
+				leftValue = leftValue.NOT()
+			}
 			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue, false)
 		} else {
 			if rule.LeftVariable != nil {
@@ -126,9 +126,9 @@ func SortFactList(ruleList []Rule, factList []factManager.Fact, lap int) []factM
 	sort.Slice(factList, func(i, j int) bool {
 		occurrenceI := factListOccurence[factList[i].Letter]
 		occurrenceJ := factListOccurence[factList[j].Letter]
-		if (factList[i].Value == v.UNKNOWN && factList[j].Value != v.UNKNOWN) {
+		if factList[i].Value == v.UNKNOWN && factList[j].Value != v.UNKNOWN {
 			return true
-		} else if (factList[i].Value != v.UNKNOWN && factList[j].Value == v.UNKNOWN) {
+		} else if factList[i].Value != v.UNKNOWN && factList[j].Value == v.UNKNOWN {
 			return false
 		}
 		if occurrenceI == occurrenceJ {
@@ -224,50 +224,55 @@ func DisplayRules(rules []Rule) {
 
 func LogReasoning(msg string) {
 	if ReasoningDisplayLogs {
-		if len(ReasoningLogs) <= 0 || ReasoningLogs[len(ReasoningLogs) - 1] != msg {
+		if len(ReasoningLogs) <= 0 || ReasoningLogs[len(ReasoningLogs)-1] != msg {
 			ReasoningLogs = append(ReasoningLogs, msg)
 		}
 	}
 }
 
-func (r *Rule) PrintAST() {
-    fmt.Printf("%s\n", r.Op)
+// Dans rules/rule.go
+func (r *Rule) PrintAST() string {
+	var s string
+	s += fmt.Sprintf("%s\n", r.Op)
 
-    childrenCount := 0
-    if r.LeftVariable != nil || r.LeftExpressionGroup != nil {
-        childrenCount++
-    }
-    if r.RightVariable != nil || r.RightExpressionGroup != nil {
-        childrenCount++
-    }
+	childrenCount := 0
+	if r.LeftVariable != nil || r.LeftExpressionGroup != nil {
+		childrenCount++
+	}
+	if r.RightVariable != nil || r.RightExpressionGroup != nil {
+		childrenCount++
+	}
 
-    printedChildren := 0
+	printedChildren := 0
 
-    if r.LeftVariable != nil {
-        printedChildren++
-        isLastChild := (printedChildren == childrenCount)
-        if isLastChild {
-            fmt.Printf("└── %s\n", r.LeftVariable)
-        } else {
-            fmt.Printf("├── %s\n", r.LeftVariable)
-        }
-    } else if r.LeftExpressionGroup != nil {
-        printedChildren++
-        isLastChild := (printedChildren == childrenCount)
-        r.LeftExpressionGroup.PrintAST("", isLastChild)
-    }
+	// Left
+	if r.LeftVariable != nil {
+		printedChildren++
+		isLastChild := (printedChildren == childrenCount)
+		s += fmt.Sprintf("%s%s\n", childPrefix(isLastChild), r.LeftVariable)
+	} else if r.LeftExpressionGroup != nil {
+		printedChildren++
+		isLastChild := (printedChildren == childrenCount)
+		s += r.LeftExpressionGroup.PrintAST("", isLastChild)
+	}
 
-    if r.RightVariable != nil {
-        printedChildren++
-        isLastChild := (printedChildren == childrenCount)
-        if isLastChild {
-            fmt.Printf("└── %s\n", r.RightVariable)
-        } else {
-            fmt.Printf("├── %s\n", r.RightVariable)
-        }
-    } else if r.RightExpressionGroup != nil {
-        printedChildren++
-        isLastChild := (printedChildren == childrenCount)
-        r.RightExpressionGroup.PrintAST("", isLastChild)
-    }
+	// Right
+	if r.RightVariable != nil {
+		printedChildren++
+		isLastChild := (printedChildren == childrenCount)
+		s += fmt.Sprintf("%s%s\n", childPrefix(isLastChild), r.RightVariable)
+	} else if r.RightExpressionGroup != nil {
+		printedChildren++
+		isLastChild := (printedChildren == childrenCount)
+		s += r.RightExpressionGroup.PrintAST("", isLastChild)
+	}
+
+	return s
+}
+
+func childPrefix(isLast bool) string {
+	if isLast {
+		return "└── "
+	}
+	return "├── "
 }
