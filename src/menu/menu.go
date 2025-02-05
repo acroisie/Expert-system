@@ -7,7 +7,6 @@ import (
 	"expert-system/src/rules"
 	"expert-system/src/v"
 	"fmt"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -19,6 +18,14 @@ const (
 	screenResolution
 	screenAST
 	screenEditFacts
+)
+
+var (
+	titleStyle        = lipgloss.NewStyle().Foreground(lipgloss.Color("#00bcd4")).Bold(true).Margin(0, 2)
+	menuItemStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("#bbbbbb"))
+	menuCursorStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#4caf50")).Bold(true)
+	borderStyle       = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).Padding(1, 2).BorderForeground(lipgloss.Color("#444444"))
+	instructionsStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#888888")).Italic(true)
 )
 
 type MainModel struct {
@@ -131,6 +138,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
 				}
 			}
+		case screenResolution:
+			// Aucune mise à jour spécifique pour cet écran pour l'instant.
 		}
 	}
 	return m, nil
@@ -147,20 +156,17 @@ func buildASTForRule(rules []rules.Rule, index int) string {
 }
 
 func (m MainModel) View() string {
-	style := lipgloss.NewStyle().Padding(1, 2)
 	var str string
-
 	switch m.screen {
 	case screenAST:
 		str += "---------- Rules AST ----------\n\n"
 		str += m.astString
-		str += "\nUse left/right arrow keys to navigate rules.\n"
-		str += "\nPress b to go back.\nPress q to quit.\n"
-		return style.Render(str)
-
+		str += "\n" + instructionsStyle.Render("Use left/right arrow keys to navigate rules.")
+		str += "\n" + instructionsStyle.Render("Press b to go back. Press q to quit.")
+		return borderStyle.Render(str)
 	case screenResolution:
 		if m.showResolution {
-			str += "Resolution done: "
+			str += "Resolution: "
 			if m.resolutionDone {
 				str += "Success\n"
 			} else {
@@ -180,38 +186,37 @@ func (m MainModel) View() string {
 			str += "Facts:\n"
 			factManager.SortFactListByAlphabet(factManager.FactList)
 			str += factsToString(factManager.FactList) + "\n"
-			str += "Press b to go back.\nPress q to quit.\n"
-			return style.Render(str)
+			str += instructionsStyle.Render("Press b to go back. Press q to quit.")
+			return borderStyle.Render(str)
 		}
-
 	case screenEditFacts:
 		str += "---------- Modify Facts ----------\n\n"
-		// Affichez les faits de votre Problem.Facts
 		for i, fact := range m.problem.Facts {
 			cursor := " "
 			if i == m.currentFactIndex {
 				cursor = ">"
 			}
-			// Affichez par exemple : "A = TRUE" ou "A = UNKNOWN", etc.
 			str += fmt.Sprintf("%s %c = %s\n", cursor, fact.Letter, fact.Value)
 		}
-		str += "\nUse up/down arrows to select a fact.\n"
-		str += "Press 't' for TRUE, 'f' for FALSE, 'u' for UNKNOWN.\n"
-		str += "Press b to go back to the menu.\n"
-		return style.Render(str)
+		str += "\n" + instructionsStyle.Render("Use up/down arrows to select a fact.")
+		str += "\n" + instructionsStyle.Render("Press 't' for TRUE, 'f' for FALSE, 'u' for UNKNOWN.")
+		str += "\n" + instructionsStyle.Render("Press b to go back to the menu.")
+		return borderStyle.Render(str)
 	}
-
-	// Par défaut, affichez le menu principal
-	str += "Expert System\n\n"
+	str += titleStyle.Render("Expert System")
+	str += "\n\n"
 	for i, choice := range m.choices {
 		cursor := " "
 		if m.cursor == i {
-			cursor = ">"
+			cursor = menuCursorStyle.Render(">")
+			choice = menuItemStyle.Render(choice)
+		} else {
+			choice = menuItemStyle.Render(choice)
 		}
 		str += fmt.Sprintf("%s %s\n", cursor, choice)
 	}
-	str += "\nPress q to quit.\n"
-	return style.Render(str)
+	str += "\n" + instructionsStyle.Render("Press q to quit.")
+	return borderStyle.Render(str)
 }
 
 func factsToString(facts []factManager.Fact) string {
