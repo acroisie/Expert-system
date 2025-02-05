@@ -230,8 +230,10 @@ func LogReasoning(msg string) {
 	}
 }
 
-func (r *Rule) PrintAST() {
-    fmt.Printf("%s\n", r.Op)
+// Dans rules/rule.go
+func (r *Rule) PrintAST() string {
+    var s string
+    s += fmt.Sprintf("%s\n", r.Op)
 
     childrenCount := 0
     if r.LeftVariable != nil || r.LeftExpressionGroup != nil {
@@ -243,31 +245,34 @@ func (r *Rule) PrintAST() {
 
     printedChildren := 0
 
+    // Left
     if r.LeftVariable != nil {
         printedChildren++
         isLastChild := (printedChildren == childrenCount)
-        if isLastChild {
-            fmt.Printf("└── %s\n", r.LeftVariable)
-        } else {
-            fmt.Printf("├── %s\n", r.LeftVariable)
-        }
+        s += fmt.Sprintf("%s%s\n", childPrefix(isLastChild), r.LeftVariable)
     } else if r.LeftExpressionGroup != nil {
         printedChildren++
         isLastChild := (printedChildren == childrenCount)
-        r.LeftExpressionGroup.PrintAST("", isLastChild)
+        s += r.LeftExpressionGroup.PrintAST("", isLastChild)
     }
 
+    // Right
     if r.RightVariable != nil {
         printedChildren++
         isLastChild := (printedChildren == childrenCount)
-        if isLastChild {
-            fmt.Printf("└── %s\n", r.RightVariable)
-        } else {
-            fmt.Printf("├── %s\n", r.RightVariable)
-        }
+        s += fmt.Sprintf("%s%s\n", childPrefix(isLastChild), r.RightVariable)
     } else if r.RightExpressionGroup != nil {
         printedChildren++
         isLastChild := (printedChildren == childrenCount)
-        r.RightExpressionGroup.PrintAST("", isLastChild)
+        s += r.RightExpressionGroup.PrintAST("", isLastChild)
     }
+
+    return s
+}
+
+func childPrefix(isLast bool) string {
+    if isLast {
+        return "└── "
+    }
+    return "├── "
 }
