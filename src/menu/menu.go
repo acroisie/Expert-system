@@ -101,7 +101,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Something to modify facts in bubbletea between true, false and unknown
 				return m, nil
 			case "Show Rules AST":
-				m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)	
+				m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
 				m.screen = screenAST
 				return m, nil
 			case "Quit":
@@ -113,15 +113,14 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func buildASTForRule(rules []rules.Rule, index int) string {
-    if index < 0 || index >= len(rules) {
-        return "Index out of bounds"
-    }
-    var s string
-    s += fmt.Sprintf("Rule %d:\n", index+1)
-    s += rules[index].PrintAST()
-    return s
+	if index < 0 || index >= len(rules) {
+		return "Index out of bounds"
+	}
+	var s string
+	s += fmt.Sprintf("Rule %d:\n", index+1)
+	s += rules[index].PrintAST()
+	return s
 }
-
 
 func (m MainModel) View() string {
 	style := lipgloss.NewStyle().Padding(1, 2)
@@ -133,7 +132,7 @@ func (m MainModel) View() string {
 		str += m.astString
 		str += "\nUse left/right arrow keys to navigate rules.\n"
 		str += "\nPress b to go back.\nPress q to quit.\n"
-		return style.Render(str)	
+		return style.Render(str)
 
 	case screenResolution:
 		if m.showResolution {

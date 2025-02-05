@@ -1,10 +1,10 @@
 package algo
 
 import (
-    "fmt"
-    "expert-system/src/rules"
-    "expert-system/src/factManager"
+	"expert-system/src/factManager"
+	"expert-system/src/rules"
 	"expert-system/src/v"
+	"fmt"
 )
 
 var RuleList []rules.Rule

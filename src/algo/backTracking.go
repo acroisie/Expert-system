@@ -1,17 +1,17 @@
 package algo
 
 import (
-    "fmt"
-    "expert-system/src/rules"
-    "expert-system/src/factManager"
+	"expert-system/src/factManager"
+	"expert-system/src/rules"
 	"expert-system/src/v"
+	"fmt"
 )
 
 func backTracking() *v.Error {
 	if AlgoDisplayLogs {
 		fmt.Println("\n\n---------- BACKTRACKING ----------")
 	}
-	
+
 	factListSave := make([]factManager.Fact, len(factManager.FactList))
 	factPossibilitiesTotal := [][]factManager.Fact{}
 	copy(factListSave, factManager.FactList)
@@ -33,7 +33,7 @@ func backTracking() *v.Error {
 			// factManager.DisplayFacts(possibility)
 			factPossibilitiesTotal = append(factPossibilitiesTotal, possibility)
 		}
-	
+
 		lap++
 	}
 
@@ -56,45 +56,45 @@ func backTracking() *v.Error {
 
 func determineFactListResult(factPossibilities [][]factManager.Fact) ([]factManager.Fact, *v.Error) {
 
-    mergedFacts := make([]factManager.Fact, len(factManager.FactList))
-    copy(mergedFacts, factManager.FactList)
+	mergedFacts := make([]factManager.Fact, len(factManager.FactList))
+	copy(mergedFacts, factManager.FactList)
 
-    if len(factPossibilities) <= 0 {
-        return mergedFacts, &v.Error{Type: v.SOLVING, Message: "No fact possibilities"}
-    }
+	if len(factPossibilities) <= 0 {
+		return mergedFacts, &v.Error{Type: v.SOLVING, Message: "No fact possibilities"}
+	}
 
-    for i, fact := range mergedFacts {
-        letter := fact.Letter
+	for i, fact := range mergedFacts {
+		letter := fact.Letter
 
-        allValues := make([]v.Value, 0, len(factPossibilities))
-        for _, possibility := range factPossibilities {
-            for _, factInPossibility := range possibility {
-                if factInPossibility.Letter == letter {
-                    allValues = append(allValues, factInPossibility.Value)
-                    break
-                }
-            }
-        }
+		allValues := make([]v.Value, 0, len(factPossibilities))
+		for _, possibility := range factPossibilities {
+			for _, factInPossibility := range possibility {
+				if factInPossibility.Letter == letter {
+					allValues = append(allValues, factInPossibility.Value)
+					break
+				}
+			}
+		}
 
-        alwaysFalse := true
-        alwaysTrue := true
-        for _, val := range allValues {
-            if val != v.FALSE {
-                alwaysFalse = false
-            }
-            if val != v.TRUE {
-                alwaysTrue = false
-            }
-        }
+		alwaysFalse := true
+		alwaysTrue := true
+		for _, val := range allValues {
+			if val != v.FALSE {
+				alwaysFalse = false
+			}
+			if val != v.TRUE {
+				alwaysTrue = false
+			}
+		}
 
-        if alwaysFalse {
-            mergedFacts[i].Value = v.FALSE
-        } else if alwaysTrue {
-            mergedFacts[i].Value = v.TRUE
-        } else {
+		if alwaysFalse {
+			mergedFacts[i].Value = v.FALSE
+		} else if alwaysTrue {
+			mergedFacts[i].Value = v.TRUE
+		} else {
 			mergedFacts[i].Value = v.UNDETERMINED
-        }
-    }
+		}
+	}
 
-    return mergedFacts, nil
+	return mergedFacts, nil
 }

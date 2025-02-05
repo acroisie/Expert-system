@@ -1,13 +1,13 @@
 package helpers
 
 import (
-    "fmt"
-	"os"
 	"bufio"
-	"strings"
-    "expert-system/src/factManager"
-	"expert-system/src/v"
+	"expert-system/src/factManager"
 	"expert-system/src/models"
+	"expert-system/src/v"
+	"fmt"
+	"os"
+	"strings"
 )
 
 func ReadFactsFromFile(filename string) ([]factManager.Fact, error) {

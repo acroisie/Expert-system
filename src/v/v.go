@@ -3,10 +3,10 @@ package v
 type Value int
 
 const (
-    UNKNOWN Value = iota
-    FALSE
-    TRUE
-    UNDETERMINED
+	UNKNOWN Value = iota
+	FALSE
+	TRUE
+	UNDETERMINED
 )
 
 func (v Value) normalize() Value {
@@ -22,40 +22,40 @@ func (firstValue Value) AND(secondValue Value) Value {
 	a := firstValue
 	b := secondValue
 	switch a {
-		case FALSE:
+	case FALSE:
+		return FALSE
+	case TRUE:
+		if b == TRUE {
+			return TRUE
+		} else if b == FALSE {
 			return FALSE
-		case TRUE:
-			if b == TRUE {
-				return TRUE
-			} else if b == FALSE {
-				return FALSE
-			} else if b == UNKNOWN {
-				return UNKNOWN
-			} else {
-				return UNDETERMINED
-			}
-		case UNKNOWN:
-			if b == TRUE {
-				return UNKNOWN
-			} else if b == FALSE {
-				return FALSE
-			} else if b == UNKNOWN {
-				return UNKNOWN
-			} else {
-				return UNDETERMINED
-			}
-		case UNDETERMINED:
-			if b == TRUE {
-				return UNDETERMINED
-			} else if b == FALSE {
-				return FALSE
-			} else if b == UNKNOWN {
-				return UNDETERMINED
-			} else {
-				return UNDETERMINED
-			}
-		default:
+		} else if b == UNKNOWN {
+			return UNKNOWN
+		} else {
 			return UNDETERMINED
+		}
+	case UNKNOWN:
+		if b == TRUE {
+			return UNKNOWN
+		} else if b == FALSE {
+			return FALSE
+		} else if b == UNKNOWN {
+			return UNKNOWN
+		} else {
+			return UNDETERMINED
+		}
+	case UNDETERMINED:
+		if b == TRUE {
+			return UNDETERMINED
+		} else if b == FALSE {
+			return FALSE
+		} else if b == UNKNOWN {
+			return UNDETERMINED
+		} else {
+			return UNDETERMINED
+		}
+	default:
+		return UNDETERMINED
 	}
 }
 
@@ -65,40 +65,40 @@ func (firstValue Value) OR(secondValue Value) Value {
 	a := firstValue
 	b := secondValue
 	switch a {
-		case FALSE:
-			if b == TRUE {
-				return TRUE
-			} else if b == FALSE {
-				return FALSE
-			} else if b == UNKNOWN {
-				return UNKNOWN
-			} else {
-				return UNDETERMINED
-			}
-		case TRUE:
+	case FALSE:
+		if b == TRUE {
 			return TRUE
-		case UNKNOWN:
-			if b == TRUE {
-				return TRUE
-			} else if b == FALSE {
-				return UNKNOWN
-			} else if b == UNKNOWN {
-				return UNKNOWN
-			} else {
-				return UNDETERMINED
-			}
-		case UNDETERMINED:
-			if b == TRUE {
-				return TRUE
-			} else if b == FALSE {
-				return UNDETERMINED
-			} else if b == UNKNOWN {
-				return UNDETERMINED
-			} else {
-				return UNDETERMINED
-			}
-		default:
+		} else if b == FALSE {
+			return FALSE
+		} else if b == UNKNOWN {
+			return UNKNOWN
+		} else {
 			return UNDETERMINED
+		}
+	case TRUE:
+		return TRUE
+	case UNKNOWN:
+		if b == TRUE {
+			return TRUE
+		} else if b == FALSE {
+			return UNKNOWN
+		} else if b == UNKNOWN {
+			return UNKNOWN
+		} else {
+			return UNDETERMINED
+		}
+	case UNDETERMINED:
+		if b == TRUE {
+			return TRUE
+		} else if b == FALSE {
+			return UNDETERMINED
+		} else if b == UNKNOWN {
+			return UNDETERMINED
+		} else {
+			return UNDETERMINED
+		}
+	default:
+		return UNDETERMINED
 	}
 }
 
@@ -108,40 +108,40 @@ func (firstValue Value) XOR(secondValue Value) Value {
 	a := firstValue
 	b := secondValue
 	switch a {
-		case FALSE:
-			if b == TRUE {
-				return TRUE
-			} else if b == FALSE {
-				return FALSE
-			} else if b == UNKNOWN {
-				return UNKNOWN
-			} else {
-				return UNDETERMINED
-			}
-		case TRUE:
-			if b == TRUE {
-				return FALSE
-			} else if b == FALSE {
-				return TRUE
-			} else if b == UNKNOWN {
-				return UNKNOWN
-			} else {
-				return UNDETERMINED
-			}
-		case UNKNOWN:
-			if b == TRUE {
-				return UNKNOWN
-			} else if b == FALSE {
-				return UNKNOWN
-			} else if b == UNKNOWN {
-				return UNKNOWN
-			} else {
-				return UNDETERMINED
-			}
-		case UNDETERMINED:
+	case FALSE:
+		if b == TRUE {
+			return TRUE
+		} else if b == FALSE {
+			return FALSE
+		} else if b == UNKNOWN {
+			return UNKNOWN
+		} else {
 			return UNDETERMINED
-		default:
+		}
+	case TRUE:
+		if b == TRUE {
+			return FALSE
+		} else if b == FALSE {
+			return TRUE
+		} else if b == UNKNOWN {
+			return UNKNOWN
+		} else {
 			return UNDETERMINED
+		}
+	case UNKNOWN:
+		if b == TRUE {
+			return UNKNOWN
+		} else if b == FALSE {
+			return UNKNOWN
+		} else if b == UNKNOWN {
+			return UNKNOWN
+		} else {
+			return UNDETERMINED
+		}
+	case UNDETERMINED:
+		return UNDETERMINED
+	default:
+		return UNDETERMINED
 	}
 }
 
@@ -149,16 +149,16 @@ func (v Value) NOT() Value {
 	// value := v.normalize()
 	value := v
 	switch value {
-		case FALSE:
-			return TRUE
-		case TRUE:
-			return FALSE
-		case UNKNOWN:
-			return UNKNOWN
-		case UNDETERMINED:
-			return UNDETERMINED
-		default:
-			return UNDETERMINED
+	case FALSE:
+		return TRUE
+	case TRUE:
+		return FALSE
+	case UNKNOWN:
+		return UNKNOWN
+	case UNDETERMINED:
+		return UNDETERMINED
+	default:
+		return UNDETERMINED
 	}
 }
 
@@ -173,7 +173,7 @@ func (res Value) FindUnknown_OR(know Value) Value {
 		} else {
 			return TRUE
 		}
-	} else  {
+	} else {
 		return FALSE
 	}
 }
@@ -201,7 +201,7 @@ func (res Value) FindUnknown_XOR(know Value) Value {
 func (res Value) FindTwoUnknown_OR() (Value, Value) {
 	if res == TRUE {
 		return UNKNOWN, UNKNOWN
-	} else  {
+	} else {
 		return UNKNOWN, UNKNOWN
 	}
 }
@@ -209,7 +209,7 @@ func (res Value) FindTwoUnknown_OR() (Value, Value) {
 func (res Value) FindTwoUnknown_AND() (Value, Value) {
 	if res == TRUE {
 		return TRUE, TRUE
-	} else  {
+	} else {
 		return UNKNOWN, UNKNOWN
 	}
 }
@@ -217,22 +217,22 @@ func (res Value) FindTwoUnknown_AND() (Value, Value) {
 func (res Value) FindTwoUnknown_XOR() (Value, Value) {
 	if res == TRUE {
 		return UNKNOWN, UNKNOWN
-	} else  {
+	} else {
 		return UNKNOWN, UNKNOWN
 	}
 }
 
 func (v Value) String() string {
 	switch v {
-		case FALSE:
-			return "FALSE"
-		case TRUE:
-			return "TRUE"
-		case UNDETERMINED:
-			return "UNDETERMINED"
-		case UNKNOWN:
-			return "UNKNOWN"
-		default:
-			return "UNKNOWN"
+	case FALSE:
+		return "FALSE"
+	case TRUE:
+		return "TRUE"
+	case UNDETERMINED:
+		return "UNDETERMINED"
+	case UNKNOWN:
+		return "UNKNOWN"
+	default:
+		return "UNKNOWN"
 	}
 }

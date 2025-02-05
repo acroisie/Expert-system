@@ -1,15 +1,15 @@
 package algo
 
 import (
-    "fmt"
-    "expert-system/src/factManager"
+	"expert-system/src/factManager"
 	"expert-system/src/v"
+	"fmt"
 )
 
 func forwardChecking() *v.Error {
-	
+
 	var lap int = 0
-    factManager.FactChangeCounter = 1
+	factManager.FactChangeCounter = 1
 
 	for factManager.FactChangeCounter > 0 && lap < 30 {
 
