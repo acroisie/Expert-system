@@ -5,7 +5,9 @@ import (
 	"expert-system/src/factManager"
 	"expert-system/src/models"
 	"expert-system/src/rules"
+	"expert-system/src/v"
 	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -16,19 +18,21 @@ const (
 	screenMenu screen = iota
 	screenResolution
 	screenAST
+	screenEditFacts
 )
 
 type MainModel struct {
-	choices         []string
-	cursor          int
-	problem         *models.Problem
-	showResolution  bool
-	reasoningLogs   []string
-	resolutionDone  bool
-	ResolutionError string
-	screen          screen
-	astString       string
-	currentASTIndex int
+	choices          []string
+	cursor           int
+	problem          *models.Problem
+	showResolution   bool
+	reasoningLogs    []string
+	resolutionDone   bool
+	ResolutionError  string
+	screen           screen
+	astString        string
+	currentASTIndex  int
+	currentFactIndex int
 }
 
 func InitMainModel(problem *models.Problem) MainModel {
@@ -39,10 +43,11 @@ func InitMainModel(problem *models.Problem) MainModel {
 			"Show Rules AST",
 			"Quit",
 		},
-		cursor:          0,
-		problem:         problem,
-		screen:          screenMenu,
-		currentASTIndex: 0,
+		cursor:           0,
+		problem:          problem,
+		screen:           screenMenu,
+		currentASTIndex:  0,
+		currentFactIndex: 0,
 	}
 }
 
@@ -53,59 +58,78 @@ func (m MainModel) Init() tea.Cmd {
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
+		if msg.String() == "ctrl+c" || msg.String() == "q" {
 			return m, tea.Quit
-		case "up":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-		case "down":
-			if m.cursor < len(m.choices)-1 {
-				m.cursor++
-			}
-		case "left":
-			if m.screen == screenAST && m.currentASTIndex > 0 {
-				m.currentASTIndex--
-				m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
-				return m, nil
-			}
-		case "right":
-			if m.screen == screenAST && m.currentASTIndex < len(m.problem.Rules)-1 {
-				m.currentASTIndex++
-				m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
-				return m, nil
-			}
-		case "b":
+		}
+		if msg.String() == "b" {
 			m.screen = screenMenu
 			return m, nil
-		case "enter":
-			switch m.choices[m.cursor] {
-			case "Run Resolution":
-				factManager.FactList = m.problem.Facts
-				formattedRules := rules.RulesConditionalOperatorFormatter(m.problem.Rules)
-				success, logs := algo.Algo(formattedRules)
-
-				m.showResolution = true
-				m.reasoningLogs = logs
-				m.resolutionDone = success
-				if !success {
-					m.ResolutionError = "No solution found"
-				} else {
-					m.ResolutionError = ""
+		}
+		switch m.screen {
+		case screenMenu:
+			switch msg.String() {
+			case "up":
+				if m.cursor > 0 {
+					m.cursor--
 				}
-				m.screen = screenResolution
-				return m, nil
-
-			case "Modify Facts":
-				// Something to modify facts in bubbletea between true, false and unknown
-				return m, nil
-			case "Show Rules AST":
-				m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
-				m.screen = screenAST
-				return m, nil
-			case "Quit":
-				return m, tea.Quit
+			case "down":
+				if m.cursor < len(m.choices)-1 {
+					m.cursor++
+				}
+			case "enter":
+				switch m.choices[m.cursor] {
+				case "Run Resolution":
+					factManager.FactList = m.problem.Facts
+					formattedRules := rules.RulesConditionalOperatorFormatter(m.problem.Rules)
+					success, logs := algo.Algo(formattedRules)
+					m.showResolution = true
+					m.reasoningLogs = logs
+					m.resolutionDone = success
+					if !success {
+						m.ResolutionError = "No solution found"
+					} else {
+						m.ResolutionError = ""
+					}
+					m.screen = screenResolution
+				case "Modify Facts":
+					m.screen = screenEditFacts
+					m.currentFactIndex = 0
+				case "Show Rules AST":
+					m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
+					m.screen = screenAST
+				case "Quit":
+					return m, tea.Quit
+				}
+			}
+		case screenEditFacts:
+			switch msg.String() {
+			case "up":
+				if m.currentFactIndex > 0 {
+					m.currentFactIndex--
+				}
+			case "down":
+				if m.currentFactIndex < len(m.problem.Facts)-1 {
+					m.currentFactIndex++
+				}
+			case "t":
+				m.problem.Facts[m.currentFactIndex].Value = v.TRUE
+			case "f":
+				m.problem.Facts[m.currentFactIndex].Value = v.FALSE
+			case "u":
+				m.problem.Facts[m.currentFactIndex].Value = v.UNKNOWN
+			}
+		case screenAST:
+			switch msg.String() {
+			case "left":
+				if m.currentASTIndex > 0 {
+					m.currentASTIndex--
+					m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
+				}
+			case "right":
+				if m.currentASTIndex < len(m.problem.Rules)-1 {
+					m.currentASTIndex++
+					m.astString = buildASTForRule(m.problem.Rules, m.currentASTIndex)
+				}
 			}
 		}
 	}
@@ -145,7 +169,6 @@ func (m MainModel) View() string {
 					str += "Error: " + m.ResolutionError + "\n\n"
 				}
 			}
-
 			str += "Reasoning logs:\n"
 			if len(m.reasoningLogs) == 0 {
 				str += "No logs\n"
@@ -154,18 +177,31 @@ func (m MainModel) View() string {
 					str += log + "\n"
 				}
 			}
-
 			str += "Facts:\n"
 			factManager.SortFactListByAlphabet(factManager.FactList)
 			str += factsToString(factManager.FactList) + "\n"
-
-			str += "Press b to go back.\n"
-			str += "Press q to quit.\n"
-
+			str += "Press b to go back.\nPress q to quit.\n"
 			return style.Render(str)
 		}
+
+	case screenEditFacts:
+		str += "---------- Modify Facts ----------\n\n"
+		// Affichez les faits de votre Problem.Facts
+		for i, fact := range m.problem.Facts {
+			cursor := " "
+			if i == m.currentFactIndex {
+				cursor = ">"
+			}
+			// Affichez par exemple : "A = TRUE" ou "A = UNKNOWN", etc.
+			str += fmt.Sprintf("%s %c = %s\n", cursor, fact.Letter, fact.Value)
+		}
+		str += "\nUse up/down arrows to select a fact.\n"
+		str += "Press 't' for TRUE, 'f' for FALSE, 'u' for UNKNOWN.\n"
+		str += "Press b to go back to the menu.\n"
+		return style.Render(str)
 	}
 
+	// Par défaut, affichez le menu principal
 	str += "Expert System\n\n"
 	for i, choice := range m.choices {
 		cursor := " "
@@ -174,9 +210,7 @@ func (m MainModel) View() string {
 		}
 		str += fmt.Sprintf("%s %s\n", cursor, choice)
 	}
-
 	str += "\nPress q to quit.\n"
-
 	return style.Render(str)
 }
 
