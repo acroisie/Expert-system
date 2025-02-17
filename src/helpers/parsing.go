@@ -27,6 +27,12 @@ func ParseFile(inputFile string, problem *models.Problem) {
 	}
 	defer file.Close()
 
+	fileInfo, err := file.Stat()
+	if fileInfo.Size() == 0 {
+		fmt.Println("Error: file is empty")
+		os.Exit(1)
+	}
+	
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
