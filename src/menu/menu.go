@@ -185,6 +185,8 @@ func (m MainModel) View() string {
 			str += "Facts:\n"
 			factManager.SortFactListByAlphabet(factManager.FactList)
 			str += factsToString(factManager.FactList) + "\n"
+			str += "Queries:\n"
+			str += queryResultsToString(m.problem.Queries, factManager.FactList)
 			str += instructionsStyle.Render("Press b to go back. Press q to quit.")
 			return borderStyle.Render(str)
 		}
@@ -225,3 +227,25 @@ func factsToString(facts []factManager.Fact) string {
 	}
 	return s
 }
+
+func queryResultsToString(queries []models.Query, facts []factManager.Fact) string {
+	s := ""
+	queryMap := make(map[rune]bool)
+
+	for _, query := range queries {
+		queryMap[query.Letter] = true
+	}
+
+	for _, f := range facts {
+		if queryMap[f.Letter] {
+			s += fmt.Sprintf("%c = %s\n", f.Letter, f.Value)
+		}
+	}
+
+	if s == "" {
+		s = "No queries found in facts.\n"
+	}
+
+	return s
+}
+
