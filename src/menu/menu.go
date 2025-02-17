@@ -139,7 +139,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case screenResolution:
-			// Aucune mise à jour spécifique pour cet écran pour l'instant.
 		}
 	}
 	return m, nil

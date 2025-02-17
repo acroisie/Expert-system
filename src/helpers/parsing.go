@@ -70,7 +70,13 @@ func ParseFile(inputFile string, problem *models.Problem) {
 }
 
 func parseInitialFacts(line string, initialFacts map[rune]bool) {
-	trimmed := strings.Split(line, " ")[0]
+	fields := strings.Fields(line)
+	if len(fields) <= 0 {
+		return
+	}
+
+	trimmed := fields[0]
+
 	for _, letter := range trimmed {
 		if letter < 'A' || letter > 'Z' {
 			fmt.Printf("Error: invalid initial fact '%c'\n", letter)
@@ -81,7 +87,13 @@ func parseInitialFacts(line string, initialFacts map[rune]bool) {
 }
 
 func parseQueries(line string, queries *[]models.Query, allLetters map[rune]bool) {
-	trimmed := strings.Split(line, " ")[0]
+	fields := strings.Fields(line)
+	if len(fields) <= 0 {
+		return
+	}
+
+	trimmed := fields[0]
+
 	for _, letter := range trimmed {
 		if letter < 'A' || letter > 'Z' {
 			fmt.Printf("Error: invalid query '%c'\n", letter)
