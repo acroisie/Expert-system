@@ -8,6 +8,9 @@ import (
 )
 
 func SetFalseByDefault() *v.Error {
+	if AlgoDisplayLogs {
+		fmt.Println("\n\n---------- SET FALSE BY DEFAULT ----------")
+	}
 	onlyLeftErr := SetFalseOnlyLeftFact()
 	if onlyLeftErr == nil {
 		return nil
@@ -35,6 +38,9 @@ func SetFalseByDefault() *v.Error {
 }
 
 func SetFalseInactiveFacts() (bool, *v.Error) {
+	if AlgoDisplayLogs {
+		fmt.Println("\n\n---------- SET FALSE INACTIVE FACTS ----------")
+	}
 	unknowLetters := factManager.GetUnknowLetters()
 	activeLetters := make(map[rune]bool)
 
@@ -64,7 +70,7 @@ func SetFalseInactiveFacts() (bool, *v.Error) {
 	for _, letter := range inactiveLetters {
 		err := factManager.SetFactValueByLetter(letter, v.FALSE, false)
 		if err == nil {
-			rules.LogReasoning(fmt.Sprintf("%c is present on the premises parts and on the conclusion parts, but the rules are not active, so %c = FALSE by default\n", letter, letter))
+			rules.LogReasoning(fmt.Sprintf("%c is not present, or present on the premises parts and on the conclusion parts, but the rules are not active, so %c = FALSE by default\n", letter, letter))
 		}
 	}
 
@@ -80,6 +86,9 @@ func SetFalseInactiveFacts() (bool, *v.Error) {
 }
 
 func SetFalseOnlyLeftFact() *v.Error {
+	if AlgoDisplayLogs {
+		fmt.Println("\n\n---------- SET FALSE ONLY LEFT FACTS ----------")
+	}
 	onlyLeftLetters := rules.GetLeftOnlyFacts(RuleList)
 
 	for _, letter := range onlyLeftLetters {
@@ -92,13 +101,14 @@ func SetFalseOnlyLeftFact() *v.Error {
 	copy(ruleListSave, RuleList)
 
 	displayLogSave := rules.ReasoningDisplayLogs
-	rules.ReasoningDisplayLogs = false
+	rules.ReasoningDisplayLogs = true
 	FCError := forwardChecking()
 	if FCError != nil {
+		rules.ReasoningDisplayLogs = displayLogSave
 		RuleList = ruleListSave
 		return FCError
 	}
-	rules.ReasoningDisplayLogs = displayLogSave
+	// rules.ReasoningDisplayLogs = displayLogSave
 
 	unknownLetters := factManager.GetUnknowLetters()
 	RuleList = ruleListSave

@@ -54,6 +54,8 @@ func (rule Rule) Solving() (v.Value, v.Value, *v.Error) {
 
 func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
 	LogRule(fmt.Sprintf("%s deduction, LeftValue: %s, RightValue: %s", rule, leftValue, rightValue))
+	LogRule(fmt.Sprintf("%s deduction, LeftExpressionGroup: %s, RightExpressionGroup: %s", rule, rule.LeftExpressionGroup, rule.RightExpressionGroup))
+	LogRule(fmt.Sprintf("%s deduction, LeftVariable: %s, RightVariable: %s", rule, rule.LeftVariable, rule.RightVariable))
 	if leftValue == v.TRUE && rightValue == v.UNKNOWN {
 		if rule.RightVariable != nil {
 			if rule.LeftVariable != nil {
@@ -62,7 +64,7 @@ func (rule Rule) RuleDeduction(leftValue v.Value, rightValue v.Value) *v.Error {
 				LogReasoning(fmt.Sprintf("%s, %s = %s, so %s = %s\n", rule, rule.LeftExpressionGroup, leftValue, rule.RightVariable, leftValue))
 			}
 			if rule.RightVariable.Not {
-				LogReasoning(fmt.Sprintf("%s = %s, so %s = %s\n", rule.RightVariable, leftValue, rule.RightVariable.Letter, leftValue.NOT()))
+				LogReasoning(fmt.Sprintf("%s = %s, so %c = %s\n", rule.RightVariable, leftValue, rule.RightVariable.Letter, leftValue.NOT()))
 				leftValue = leftValue.NOT()
 			}
 			return factManager.SetFactValueByLetter(rule.RightVariable.Letter, leftValue, false)
@@ -224,6 +226,7 @@ func DisplayRules(rules []Rule) {
 
 func LogReasoning(msg string) {
 	if ReasoningDisplayLogs {
+		// fmt.Println(fmt.Sprintf("REASONING LOG - %s", msg))
 		if len(ReasoningLogs) <= 0 || ReasoningLogs[len(ReasoningLogs)-1] != msg {
 			ReasoningLogs = append(ReasoningLogs, msg)
 		}

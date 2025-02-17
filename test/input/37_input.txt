@@ -1,0 +1,8 @@
+# Multiple same conclusion rule
+
+B => A
+C => A
+
+=BC
+?A
+
