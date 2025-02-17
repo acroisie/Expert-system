@@ -7,6 +7,8 @@ import (
 	"expert-system/src/rules"
 	"expert-system/src/v"
 	"fmt"
+	"strings"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -40,6 +42,8 @@ type MainModel struct {
 	astString        string
 	currentASTIndex  int
 	currentFactIndex int
+	scrollOffset     int
+	maxVisibleLines  int
 }
 
 func InitMainModel(problem *models.Problem) MainModel {
@@ -55,6 +59,8 @@ func InitMainModel(problem *models.Problem) MainModel {
 		screen:           screenMenu,
 		currentASTIndex:  0,
 		currentFactIndex: 0,
+		scrollOffset:     0,
+		maxVisibleLines:  10,
 	}
 }
 
@@ -139,6 +145,17 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 		case screenResolution:
+			switch msg.String() {
+			case "up":
+				if m.scrollOffset > 0 {
+					m.scrollOffset--
+				}
+			case "down":
+				totalLines := len(m.reasoningLogs) + len(m.problem.Facts) + len(m.problem.Queries) + 2
+				if m.scrollOffset < totalLines-m.maxVisibleLines {
+					m.scrollOffset++
+				}
+			}
 		}
 	}
 	return m, nil
@@ -174,19 +191,34 @@ func (m MainModel) View() string {
 					str += "Error: " + m.ResolutionError + "\n\n"
 				}
 			}
-			str += "Reasoning logs:\n"
-			if len(m.reasoningLogs) == 0 {
-				str += "No logs\n"
-			} else {
-				for _, log := range m.reasoningLogs {
-					str += log + "\n"
-				}
-			}
-			str += "Facts:\n"
 			factManager.SortFactListByAlphabet(factManager.FactList)
-			str += factsToString(factManager.FactList) + "\n"
-			str += "Queries:\n"
-			str += queryResultsToString(m.problem.Queries, factManager.FactList)
+			var lines []string
+			if len(m.reasoningLogs) == 0 {
+				lines = append(lines, "Reasoning logs:", "No logs")
+			} else {
+				lines = append(lines, "Reasoning logs:")
+				lines = append(lines, m.reasoningLogs...)
+			}
+			lines = append(lines, "Facts:")
+			lines = append(lines, factsToList(factManager.FactList)...)
+			lines = append(lines, "Queries:")
+			lines = append(lines, queryResultsToStringList(m.problem.Queries, factManager.FactList)...)
+			cleanLines := make([]string, 0, len(lines))
+			for _, l := range lines {
+				l = strings.TrimSpace(l)
+				cleanLines = append(cleanLines, l)
+			}
+			start := m.scrollOffset
+			end := start + m.maxVisibleLines
+			if end > len(cleanLines) {
+				end = len(cleanLines)
+			}
+			for _, line := range cleanLines[start:end] {
+				str += line + "\n"
+			}
+			if len(cleanLines) > m.maxVisibleLines {
+				str += instructionsStyle.Render("\nUse ↑/↓ to scroll.\n")
+			}
 			str += instructionsStyle.Render("Press b to go back. Press q to quit.")
 			return borderStyle.Render(str)
 		}
@@ -220,32 +252,27 @@ func (m MainModel) View() string {
 	return borderStyle.Render(str)
 }
 
-func factsToString(facts []factManager.Fact) string {
-	s := ""
+func factsToList(facts []factManager.Fact) []string {
+	var lines []string
 	for _, f := range facts {
-		s += fmt.Sprintf("%c = %s\n", f.Letter, f.Value)
+		lines = append(lines, fmt.Sprintf("%c = %s", f.Letter, f.Value))
 	}
-	return s
+	return lines
 }
 
-func queryResultsToString(queries []models.Query, facts []factManager.Fact) string {
-	s := ""
+func queryResultsToStringList(queries []models.Query, facts []factManager.Fact) []string {
+	var result []string
 	queryMap := make(map[rune]bool)
-
 	for _, query := range queries {
 		queryMap[query.Letter] = true
 	}
-
 	for _, f := range facts {
 		if queryMap[f.Letter] {
-			s += fmt.Sprintf("%c = %s\n", f.Letter, f.Value)
+			result = append(result, fmt.Sprintf("%c = %s", f.Letter, f.Value))
 		}
 	}
-
-	if s == "" {
-		s = "No queries found in facts.\n"
+	if len(result) == 0 {
+		result = append(result, "No queries found in facts.")
 	}
-
-	return s
+	return result
 }
-
